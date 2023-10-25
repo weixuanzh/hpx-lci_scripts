@@ -1,0 +1,27 @@
+import os, sys
+
+class PlatformConfigBase:
+    name = "None"
+
+from platforms.platform_config_rostam import RostamConfig
+from platforms.platform_config_perlmutter import PerlmutterConfig
+
+platformConfig = PlatformConfigBase()
+
+if "CMD_WLM_CLUSTER_NAME" in os.environ and os.environ["CMD_WLM_CLUSTER_NAME"] == "expanse" or \
+        "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "expanse":
+    pass
+elif "HOSTNAME" in os.environ and "rostam" in os.environ["HOSTNAME"] or \
+        "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "rostam":
+    platformConfig = RostamConfig()
+elif "NERSC_HOST" in os.environ and "perlmutter" == os.environ["NERSC_HOST"]:
+    platformConfig = PerlmutterConfig()
+elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
+        "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "delta":
+    pass
+else:
+    print("Unknown platform!")
+    exit(1)
+
+def get_platform_config():
+    return platformConfig
