@@ -81,20 +81,25 @@ def module_list():
     os.system("module list")
 
 def spack_env_activate(env):
-    ret = pshell.run("spack env activate {}".format(env), to_print=False)
-    if ret and "Error" in "\n".join(ret):
-        for line in ret:
+    _, ret_stderr = pshell.run("spack env activate {}".format(env), to_print=False)
+    if ret_stderr:
+        for line in ret_stderr.splitlines():
             if "setup-env.sh" in line:
                 pshell.run(line.strip())
-                ret = pshell.run("spack env activate {}".format(env))
+                _, ret_stderr = pshell.run("spack env activate {}".format(env))
                 break
-    assert ret is None or "Error" not in "\n".join(ret)
+    assert not ret_stderr
+    # ret_stdout, _ = pshell.run("spack env activate --sh {}".format(env), to_print=False)
+    # if ret_stdout:
+    #     pshell.run(ret_stdout.replace("\n", " ").strip()[:-1], to_print=False)
 
-def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None,
-              ntasks_per_node=1, extra_args=None):
+def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None, extra_args=None):
     if name is None:
         name = config["name"]
-    job_name="n{}-{}".format(nnodes, name)
+    ntasks_per_node = 1
+    if "ntasks_per_node" in config:
+        ntasks_per_node = config["ntasks_per_node"]
+    job_name="n{}-t{}-{}".format(nnodes, ntasks_per_node, name)
     output_filename = "./run/slurm_output.{}.%x.j%j.out".format(tag)
     platform_config = get_platform_config()
     if not partition:
@@ -118,8 +123,9 @@ def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None,
     if extra_args:
         sbatch_args += extra_args
 
-    command = f'''
-    sbatch {" ".join(sbatch_args)} \
-           slurm.py '{json.dumps(config)}'
-    '''
+    command = f"sbatch {' '.join(sbatch_args)} slurm.py '{json.dumps(config)}'"
+    print(command)
     os.system(command)
+
+if __name__ == "__main__":
+    spack_env_activate("hpx-lci")

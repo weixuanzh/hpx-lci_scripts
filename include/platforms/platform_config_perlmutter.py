@@ -4,9 +4,11 @@ from platform_config_base import *
 
 class PerlmutterConfig(PlatformConfigBase):
     name = "perlmutter"
-    srun_pmi_option=""
-    cpus_per_node = 64
+    network = "ofi"
+    srun_pmi_option=[]
+    cpus_per_node = 128
     gpus_per_node = 4
+    cpus_per_core = 2
     numa_policy = "default"
     account = "m4452"
     partition = "regular"

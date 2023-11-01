@@ -21,18 +21,14 @@ else:
 current_path = get_current_script_path()
 root_path = os.path.realpath(os.path.join(current_path, "../.."))
 
+# os.environ["FI_CXI_RX_MATCH_MODE"] = "software"
+pshell.run("export LCI_ENABLE_PRG_NET_ENDPOINT=0")
+# pshell.run("export LCI_LOG_LEVEL=trace")
+pshell.run("ulimit -c unlimited")
+
 start_time = time.time()
 for config in configs:
     print("Config: " + json.dumps(config))
-    # load modules
-    # extra = ["ucx"]
-    # if "special_branch" in config:
-    #     extra += ["hpx/" + config["special_branch"], "lci/local-release-safeprog"]
-    #     print(extra)
-    # load_module(config, build_type="release", enable_pcounter=False, extra=extra)
-    # module_list()
-
-    spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
-    run_octotiger(root_path, config)
+    run_octotiger(root_path, config, extra_arguments=["1>&2"])
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

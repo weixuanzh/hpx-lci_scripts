@@ -4,6 +4,7 @@ from platform_config_base import *
 
 class RostamConfig(PlatformConfigBase):
     name = "rostam"
+    network = "ibv"
     srun_pmi_option="--mpi=pmix"
     cpus_per_node = 40
     gpus_per_node = 0
