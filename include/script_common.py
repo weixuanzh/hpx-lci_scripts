@@ -123,9 +123,9 @@ def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None, e
     if extra_args:
         sbatch_args += extra_args
 
-    command = f"sbatch {' '.join(sbatch_args)} slurm.py '{json.dumps(config)}'"
-    print(command)
-    os.system(command)
+    current_path = get_current_script_path()
+    command = f"sbatch {' '.join(sbatch_args)} slurm.py '{current_path}' '{json.dumps(config)}'"
+    pshell.run(command)
 
 if __name__ == "__main__":
     spack_env_activate("hpx-lci")

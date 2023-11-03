@@ -29,6 +29,8 @@ class PShell:
         self.proc = Popen(['bash'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
     def run(self, command, to_print = True):
+        if type(command) is list:
+            command = " ".join(command)
         secret = random.random()
         term_words = "\n{} done\n".format(secret)
         cmd = command + "; printf \"{}\"; >&2 printf \"{}\"\n".format(term_words, term_words)

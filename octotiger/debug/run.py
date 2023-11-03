@@ -12,10 +12,10 @@ import time
 baseline = {
     "name": "lci",
     "spack_env": "hpx-lci",
-    "nnodes_list": [4],
+    "nnodes_list": [1],
     "ntasks_per_node": 4,
     "griddim": 8,
-    "max_level": 5,
+    "max_level": 3,
     "stop_step": 5,
     "zc_threshold": 4096,
     "task": "rs",
@@ -37,10 +37,8 @@ baseline = {
     "lcipp_log_level": "debug"
 }
 
-if platformConfig.network == "ofi":
-    baseline["mem_reg_cache"] = 0
 if platformConfig.name == "perlmutter":
-    baseline["ngpus"] = 1
+    baseline["ngpus"] = 0
 
 configs = [
     # # # LCI v.s. MPI
@@ -118,4 +116,4 @@ if __name__ == "__main__":
                 spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
                 # print(config)
                 for nnodes in config["nnodes_list"]:
-                    run_slurm(tag, nnodes, config, time = "3:00")
+                    run_slurm(tag, nnodes, config, time = "5:00")

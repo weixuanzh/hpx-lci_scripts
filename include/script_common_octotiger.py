@@ -64,7 +64,6 @@ def get_environ_setting(config):
 
 
 def get_octotiger_cmd(root_path, config):
-
     def get_config(config, key, default):
         if key in config:
             return config[key]
