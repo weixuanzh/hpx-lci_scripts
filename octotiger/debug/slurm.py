@@ -22,14 +22,14 @@ if type(config) is list:
 else:
     configs = [config]
 
-# os.environ["FI_CXI_RX_MATCH_MODE"] = "software"
-# pshell.run("export LCI_ENABLE_PRG_NET_ENDPOINT=0")
+if platformConfig.name == "perlmutter":
+    pshell.run("export FI_CXI_RX_MATCH_MODE=software")
 # pshell.run("export LCI_LOG_LEVEL=trace")
 pshell.run("ulimit -c unlimited")
 
 start_time = time.time()
 for config in configs:
     print("Config: " + json.dumps(config))
-    run_octotiger(root_path, config, extra_arguments=["1>&2"])
+    run_octotiger(root_path, config)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

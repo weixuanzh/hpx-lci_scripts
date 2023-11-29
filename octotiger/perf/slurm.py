@@ -16,6 +16,6 @@ if len(sys.argv) > 2:
 print("Config: " + json.dumps(config))
 
 pshell.run(f"cd {current_path}/run")
-cmd = (["srun"] + platformConfig.srun_pmi_option +
+cmd = (["srun"] + platformConfig.get_srun_pmi_option(config) +
        [f"{current_path}/profile_wrapper.py", current_path, f"'{json.dumps(config)}'"])
 pshell.run(cmd)

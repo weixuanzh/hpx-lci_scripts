@@ -1,20 +1,24 @@
-def get_platform_config_all():
-    return {
-        "name": "expanse",
-        "core_num": 128,
-        "numa_policy": "interleave",
-        "account": "uic193",
-        "partition": "compute",
-        "octotiger_major": "local"
-    }
+import sys
 
-def get_srun_pmi_option(config):
-    srun_pmi_option = ""
-    if config["parcelport"] == "lci":
-        srun_pmi_option = "--mpi=pmi2"
-    elif config["parcelport"] == "mpi":
-        srun_pmi_option = "--mpi=pmix"
-    else:
-        print("Unknown parcelport type: " + config["parcelport"])
-        exit(1)
-    return srun_pmi_option
+sys.path.append("../../include")
+from platform_config_base import *
+
+class ExpanseConfig(PlatformConfigBase):
+    name = "expanse"
+    network = "ibv"
+    cpus_per_node = 128
+    gpus_per_node = 0
+    numa_policy = "interleave"
+    account = "uic193"
+    partition = "compute"
+
+    def get_srun_pmi_option(self, config):
+        if config["parcelport"] == "lci":
+            srun_pmi_option = ["--mpi=pmi2"]
+        elif config["parcelport"] == "mpi":
+            srun_pmi_option = ["--mpi=pmix"]
+        else:
+            print("Unknown parcelport type: " + config["parcelport"])
+            exit(1)
+        return srun_pmi_option
+

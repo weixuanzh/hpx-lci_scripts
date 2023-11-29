@@ -88,6 +88,8 @@ def spack_env_activate(env):
                 pshell.run(line.strip())
                 _, ret_stderr = pshell.run("spack env activate {}".format(env))
                 break
+    if ret_stderr:
+        print(ret_stderr)
     assert not ret_stderr
     # ret_stdout, _ = pshell.run("spack env activate --sh {}".format(env), to_print=False)
     # if ret_stdout:
@@ -112,8 +114,10 @@ def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None, e
                    f"--time={time}",
                    f"--ntasks-per-node={ntasks_per_node}",
                    f"--cpus-per-task={int(platform_config.cpus_per_node / ntasks_per_node)}",
-                   f"--gpus-per-task={int(platform_config.gpus_per_node / ntasks_per_node)}",
                    ]
+    gpus_per_node = int(platform_config.gpus_per_node / ntasks_per_node)
+    if gpus_per_node:
+        sbatch_args.append(f"--gpus-per-task={gpus_per_node}")
     if platform_config.account:
         sbatch_args.append("--account={}".format(platform_config.account))
     if partition:

@@ -13,8 +13,9 @@ class PlatformConfigBase:
 
     @property
     def additional_sbatch_args(self):
-        return ["--constraint=gpu"]
+        return []
 
+from platforms.platform_config_expanse import ExpanseConfig
 from platforms.platform_config_rostam import RostamConfig
 from platforms.platform_config_perlmutter import PerlmutterConfig
 
@@ -22,7 +23,7 @@ platformConfig = PlatformConfigBase()
 
 if "CMD_WLM_CLUSTER_NAME" in os.environ and os.environ["CMD_WLM_CLUSTER_NAME"] == "expanse" or \
         "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "expanse":
-    pass
+    platformConfig = ExpanseConfig()
 elif "HOSTNAME" in os.environ and "rostam" in os.environ["HOSTNAME"] or \
         "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "rostam":
     platformConfig = RostamConfig()

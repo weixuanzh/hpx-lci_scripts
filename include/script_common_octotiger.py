@@ -158,7 +158,7 @@ def run_octotiger(root_path, config, extra_arguments=None):
 
     pshell.run(f"cd {root_path}/octotiger/data")
     cmd = (["srun"] +
-           platformConfig.srun_pmi_option +
+           platformConfig.get_srun_pmi_option(config) +
            numactl_cmd +
            get_octotiger_cmd(root_path, config) +
            extra_arguments)

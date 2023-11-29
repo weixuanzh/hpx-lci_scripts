@@ -10,12 +10,12 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "lci",
+    "name": "mpi",
     "spack_env": "hpx-lci",
-    "nnodes_list": [1],
-    "ntasks_per_node": 4,
+    "nnodes_list": [2],
+    "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 3,
+    "max_level": 5,
     "stop_step": 5,
     "zc_threshold": 4096,
     "task": "rs",
@@ -38,7 +38,8 @@ baseline = {
 }
 
 if platformConfig.name == "perlmutter":
-    baseline["ngpus"] = 0
+    baseline["ntasks_per_node"] = 4
+    baseline["ngpus"] = 1
 
 configs = [
     # # # LCI v.s. MPI
@@ -106,14 +107,15 @@ if __name__ == "__main__":
                 exit(1)
 
     root_path = os.path.realpath(os.path.join(get_current_script_path(), "../.."))
-    for i in range(n):
-        if run_as_one_job:
-            for nnodes in configs[0]["nnodes_list"]:
-                spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
+    if run_as_one_job:
+        spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
+        for nnodes in configs[0]["nnodes_list"]:
+            for i in range(n):
                 run_slurm(tag, nnodes, configs, name="all", time = "00:00:{}".format(len(configs) * 30))
-        else:
-            for config in configs:
-                spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
-                # print(config)
-                for nnodes in config["nnodes_list"]:
-                    run_slurm(tag, nnodes, config, time = "5:00")
+    else:
+        for config in configs:
+            spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
+            # print(config)
+            for nnodes in config["nnodes_list"]:
+                for i in range(n):
+                    run_slurm(tag, nnodes, config, time = "1:00")

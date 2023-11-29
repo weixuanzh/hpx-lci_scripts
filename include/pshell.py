@@ -14,7 +14,7 @@ class ThreadReadio(threading.Thread):
     def run(self):
         content = ""
         while True:
-            text = self.io.read1(-1).decode("utf-8")
+            text = self.io.read1(8192).decode("utf-8")
             if text:
                 content = content + text
                 if content.endswith(self.term_words):
