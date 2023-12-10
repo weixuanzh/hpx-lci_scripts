@@ -10,8 +10,9 @@ class PerlmutterConfig(PlatformConfigBase):
     cpus_per_core = 2
     numa_policy = "default"
     account = "m4452"
-    partition = "regular"
-    
+    partition = None
+    qos = "regular"
+
     @property
     def additional_sbatch_args(self):
         return ["--constraint=gpu"]

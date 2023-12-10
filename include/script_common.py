@@ -95,7 +95,21 @@ def spack_env_activate(env):
     # if ret_stdout:
     #     pshell.run(ret_stdout.replace("\n", " ").strip()[:-1], to_print=False)
 
-def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None, extra_args=None):
+def submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, extra_args):
+    if name is None:
+        name = config["name"]
+    pbs_args = [f"-A {get_platform_config('account', config, partition)}",
+                "-k doe",
+                f"-l walltime={time}",
+                f"-l select={nnodes}",
+                f"-N {tag}-{name}",
+                f"-q {get_platform_config('partition', config, partition)}"
+                ]
+    if get_platform_config("additional_sbatch_args", config, extra_args):
+        pbs_args += get_platform_config("additional_sbatch_args", config, extra_args)
+    pshell.run(["qsub"] + pbs_args + [job_file])
+
+def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, extra_args):
     if name is None:
         name = config["name"]
     ntasks_per_node = 1
@@ -103,9 +117,6 @@ def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None, e
         ntasks_per_node = config["ntasks_per_node"]
     job_name="n{}-t{}-{}".format(nnodes, ntasks_per_node, name)
     output_filename = "./run/slurm_output.{}.%x.j%j.out".format(tag)
-    platform_config = get_platform_config()
-    if not partition:
-        partition = platform_config.partition
     sbatch_args = ["--export=ALL",
                    f"--nodes={nnodes}",
                    f"--job-name={job_name}",
@@ -113,23 +124,33 @@ def run_slurm(tag, nnodes, config, time="00:05:00", name=None, partition=None, e
                    f"--error={output_filename}",
                    f"--time={time}",
                    f"--ntasks-per-node={ntasks_per_node}",
-                   f"--cpus-per-task={int(platform_config.cpus_per_node / ntasks_per_node)}",
+                   f"--cpus-per-task={int(get_platform_config('cpus_per_node', config) / ntasks_per_node)}",
                    ]
-    gpus_per_node = int(platform_config.gpus_per_node / ntasks_per_node)
+    gpus_per_node = int(get_platform_config("gpus_per_node", config) / ntasks_per_node)
     if gpus_per_node:
         sbatch_args.append(f"--gpus-per-task={gpus_per_node}")
-    if platform_config.account:
-        sbatch_args.append("--account={}".format(platform_config.account))
+    if get_platform_config("account", config):
+        sbatch_args.append("--account={}".format(get_platform_config("account", config)))
+    if not partition:
+        partition = get_platform_config("partition", config)
     if partition:
         sbatch_args.append("--partition={} ".format(partition))
-    if platform_config.additional_sbatch_args:
-        sbatch_args += platform_config.additional_sbatch_args
+    if get_platform_config("qos", config):
+        sbatch_args.append("--qos={} ".format(get_platform_config("qos", config)))
+    sbatch_args += get_platform_config("additional_sbatch_args", config, [])
     if extra_args:
         sbatch_args += extra_args
 
     current_path = get_current_script_path()
-    command = f"sbatch {' '.join(sbatch_args)} slurm.py '{current_path}' '{json.dumps(config)}'"
+    command = f"sbatch {' '.join(sbatch_args)} {job_file} '{current_path}' '{json.dumps(config)}'"
     pshell.run(command)
+
+def submit_job(job_file, tag, nnodes, config, time="00:05:00", name=None, partition=None, extra_args=None):
+    scheduler = get_platform_config("scheduler", config, "slurm")
+    if scheduler == "slurm":
+        submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, extra_args)
+    elif scheduler == "pbs":
+        submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, extra_args)
 
 if __name__ == "__main__":
     spack_env_activate("hpx-lci")

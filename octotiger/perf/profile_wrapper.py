@@ -16,7 +16,9 @@ if len(sys.argv) > 2:
 
 pshell.update_env(get_environ_setting(config))
 if platformConfig.name == "perlmutter":
-    pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send;recv")
+    pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
+    if config["progress_type"] == "rp":
+        pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
 
 pshell.run(f"cd {root_path}/octotiger/data")
 perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'

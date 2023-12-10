@@ -1,0 +1,21 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  # add package specs to the `specs` list
+  specs:
+  - octotiger@master ^hpx networking=lci,mpi ^intel-mpi@19.0.9
+  view: true
+  concretizer:
+    unify: true
+  develop:
+    octotiger:
+      path: ../../../../octotiger
+      spec: octotiger@=master
+    hpx:
+      path: ../../../../hpx
+      spec: hpx@=master
+    lci:
+      path: ../../../../LC
+      spec: lci@=master

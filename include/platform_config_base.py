@@ -10,14 +10,12 @@ class PlatformConfigBase:
     numa_policy = "default"
     account = None
     partition = None
-
-    @property
-    def additional_sbatch_args(self):
-        return []
+    additional_sbatch_args = []
 
 from platforms.platform_config_expanse import ExpanseConfig
 from platforms.platform_config_rostam import RostamConfig
 from platforms.platform_config_perlmutter import PerlmutterConfig
+from platforms.platform_config_polaris import PolarisConfig
 
 platformConfig = PlatformConfigBase()
 
@@ -29,6 +27,9 @@ elif "HOSTNAME" in os.environ and "rostam" in os.environ["HOSTNAME"] or \
     platformConfig = RostamConfig()
 elif "NERSC_HOST" in os.environ and "perlmutter" == os.environ["NERSC_HOST"]:
     platformConfig = PerlmutterConfig()
+elif "HOSTNAME" in os.environ and "polaris" in os.environ["HOSTNAME"] or \
+        "PBS_NODEFILE" in os.environ and "polaris" in os.environ["PBS_NODEFILE"]:
+    platformConfig = PolarisConfig
 elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
         "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "delta":
     pass
@@ -36,5 +37,9 @@ elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
 #     print("Unknown platform!")
 #     exit(1)
 
-def get_platform_config():
-    return platformConfig
+def get_platform_config(name, config, default=None):
+    target = getattr(platformConfig, name, default)
+    if callable(target):
+        return target(platformConfig, config)
+    else:
+        return target

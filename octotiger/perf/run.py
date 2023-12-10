@@ -13,11 +13,11 @@ baseline = {
     "name": "lci",
     "spack_env": "hpx-lci",
     "nnodes_list": [2],
-    "ntasks_per_node": 4,
+    "ntasks_per_node": 1,
     "griddim": 8,
     "max_level": 4,
     "stop_step": 5,
-    "zc_threshold": 4096,
+    "zc_threshold": 8192,
     "task": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
@@ -34,7 +34,6 @@ baseline = {
     "reg_mem": 1,
     "ndevices": 1,
     "ncomps": 1,
-    "lcipp_log_level": "debug"
 }
 
 if platformConfig.name == "perlmutter":
@@ -42,6 +41,7 @@ if platformConfig.name == "perlmutter":
 
 configs = [
     {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
 ]
 run_as_one_job = False
 
@@ -65,10 +65,10 @@ if __name__ == "__main__":
         if run_as_one_job:
             for nnodes in configs[0]["nnodes_list"]:
                 spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
-                run_slurm(tag, nnodes, configs, name="all", time = "00:00:{}".format(len(configs) * 30))
+                submit_job("slurm.py", tag, nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
         else:
             for config in configs:
                 spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
                 # print(config)
                 for nnodes in config["nnodes_list"]:
-                    run_slurm(tag, nnodes, config, time = "1:00")
+                    submit_job("slurm.py", tag, nnodes, config, time ="1:00")

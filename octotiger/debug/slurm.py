@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-sys.path.append("../../include")
-import pshell
-from script_common_octotiger import *
 import json
 import time
 
@@ -11,6 +8,11 @@ import time
 assert len(sys.argv) > 1
 current_path = sys.argv[1]
 root_path = os.path.realpath(os.path.join(current_path, "../.."))
+
+sys.path.append(os.path.join(root_path, "include"))
+import pshell
+from script_common_octotiger import *
+
 # load configuration
 config = get_default_config()
 if len(sys.argv) > 2:
@@ -24,6 +26,9 @@ else:
 
 if platformConfig.name == "perlmutter":
     pshell.run("export FI_CXI_RX_MATCH_MODE=software")
+    pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
+    if config["progress_type"] == "rp":
+        pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
 # pshell.run("export LCI_LOG_LEVEL=trace")
 pshell.run("ulimit -c unlimited")
 

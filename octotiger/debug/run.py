@@ -12,12 +12,12 @@ import time
 baseline = {
     "name": "mpi",
     "spack_env": "hpx-lci",
-    "nnodes_list": [2],
+    "nnodes_list": [16, 32],
     "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 5,
+    "max_level": 6,
     "stop_step": 5,
-    "zc_threshold": 4096,
+    "zc_threshold": 8192,
     "task": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
@@ -38,14 +38,14 @@ baseline = {
 }
 
 if platformConfig.name == "perlmutter":
-    baseline["ntasks_per_node"] = 4
+    baseline["ntasks_per_node"] = 1
     baseline["ngpus"] = 1
 
 configs = [
     # # # LCI v.s. MPI
-    {**baseline, "name": "lci", "parcelport": "lci"},
-    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
-    # # {**baseline, "nnodes_list": [2, 4, 8, 16, 32], "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
+    # {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
+    # {**baseline, "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
     # # {**baseline, "name": "mpi-grid6", "parcelport": "mpi", "sendimm": 0, "griddim": 6},
@@ -61,12 +61,13 @@ configs = [
     # {**baseline, "name": "lci_sync", "comp_type": "sync"},
     # # # ndevices + progress_type
     # # {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
-    # # {**baseline, "name": "lci_mt_d2_c1", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
-    # # {**baseline, "name": "lci_mt_d4_c1", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
-    # {**baseline, "name": "lci_mt_d8_c1", "ndevices": 8, "progress_type": "worker", "ncomps": 1},
-    # # {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
-    # # {**baseline, "name": "lci_pin_d2_c1", "ndevices": 2, "progress_type": "rp", "ncomps": 1},
-    # # {**baseline, "name": "lci_pin_d4_c1", "ndevices": 4, "progress_type": "rp", "ncomps": 1},
+    {**baseline, "name": "lci_mt_d2_c1", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
+    {**baseline, "name": "lci_mt_d4_c1", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
+    {**baseline, "name": "lci_mt_d8_c1", "ndevices": 8, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lci_mt_d16_c1", "ndevices": 16, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
+    # {**baseline, "name": "lci_pin_d2_c1", "ndevices": 2, "progress_type": "rp", "ncomps": 1},
+    # {**baseline, "name": "lci_pin_d4_c1", "ndevices": 4, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "lci_pin_d8_c1", "ndevices": 8, "progress_type": "rp", "ncomps": 1},
     # # # ncomps
     # # {**baseline, "name": "lci_mt_d4_c2", "ndevices": 4, "progress_type": "worker", "ncomps": 2},
@@ -111,11 +112,18 @@ if __name__ == "__main__":
         spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
         for nnodes in configs[0]["nnodes_list"]:
             for i in range(n):
-                run_slurm(tag, nnodes, configs, name="all", time = "00:00:{}".format(len(configs) * 30))
+                submit_job("slurm.py", tag, nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
     else:
+        current_spack_env = None
         for config in configs:
-            spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
+            if current_spack_env != config["spack_env"]:
+                spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
+                current_spack_env = config["spack_env"]
             # print(config)
             for nnodes in config["nnodes_list"]:
+                config["nnodes"] = nnodes
                 for i in range(n):
-                    run_slurm(tag, nnodes, config, time = "1:00")
+                    time ="1:00"
+                    if get_platform_config('name', config) == "polaris":
+                        time = "5:00"
+                    submit_job("slurm.py", tag, nnodes, config, time=time)
