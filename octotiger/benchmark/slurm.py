@@ -26,20 +26,19 @@ else:
 
 if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
     pshell.run("export FI_CXI_RX_MATCH_MODE=software")
+    pshell.run("export FI_CXI_DEFAULT_CQ_SIZE=263404")
+    pshell.run("export FI_CXI_OFLOW_BUF_SIZE=12582912")
+    pshell.run("export FI_CXI_CQ_FILL_PERCENT=20")
     pshell.run("export PMI_MAX_KVS_ENTRIES=2048")
     if config["progress_type"] == "rp":
         pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
-pshell.run("export LCI_LOG_LEVEL=info")
-pshell.run("export LCT_LOG_LEVEL=info")
-# pshell.run("export HPX_LCI_LOG_LEVEL=debug")
-# pshell.run("export LCT_PMI_BACKEND=pmi2")
-# pshell.run("export LCT_PCOUNTER_MODE=on-the-fly")
-# pshell.run("export LCT_PCOUNTER_AUTO_DUMP=stderr")
-pshell.run("ulimit -c unlimited")
+# pshell.run("export LCI_LOG_LEVEL=info")
+# pshell.run("export LCT_LOG_LEVEL=info")
+# pshell.run("ulimit -c unlimited")
 
 start_time = time.time()
 for config in configs:
     print("Config: " + json.dumps(config))
-    run_octotiger(root_path, config, extra_arguments=["1>&2"])
+    run_octotiger(root_path, config)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

@@ -16,6 +16,7 @@ from platforms.platform_config_expanse import ExpanseConfig
 from platforms.platform_config_rostam import RostamConfig
 from platforms.platform_config_perlmutter import PerlmutterConfig
 from platforms.platform_config_polaris import PolarisConfig
+from platforms.platform_config_delta import DeltaConfig
 
 platformConfig = PlatformConfigBase()
 
@@ -29,10 +30,10 @@ elif "NERSC_HOST" in os.environ and "perlmutter" == os.environ["NERSC_HOST"]:
     platformConfig = PerlmutterConfig()
 elif "HOSTNAME" in os.environ and "polaris" in os.environ["HOSTNAME"] or \
         "PBS_NODEFILE" in os.environ and "polaris" in os.environ["PBS_NODEFILE"]:
-    platformConfig = PolarisConfig
+    platformConfig = PolarisConfig()
 elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
         "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "delta":
-    pass
+    platformConfig = DeltaConfig()
 # else:
 #     print("Unknown platform!")
 #     exit(1)
@@ -40,6 +41,6 @@ elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
 def get_platform_config(name, config, default=None):
     target = getattr(platformConfig, name, default)
     if callable(target):
-        return target(platformConfig, config)
+        return target(config)
     else:
         return target

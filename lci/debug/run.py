@@ -10,38 +10,17 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "lci",
+    "name": "hello_world",
     "spack_env": "hpx-lci",
-    "nnodes_list": [2],
+    "nnodes_list": [32],
     "ntasks_per_node": 1,
-    "griddim": 8,
-    "max_level": 4,
-    "stop_step": 5,
-    "zc_threshold": 8192,
-    "scenario": "rs",
-    "parcelport": "lci",
-    "protocol": "putsendrecv",
-    "comp_type": "queue",
-    "progress_type": "worker",
-    "prg_thread_num": "auto",
-    "sendimm": 1,
-    "backlog_queue": 0,
-    "prepost_recv_num": 1,
-    "zero_copy_recv": 1,
-    "in_buffer_assembly": 1,
-    "match_table_type": "hashqueue",
-    "cq_type": "array_atomic_faa",
-    "reg_mem": 1,
-    "ndevices": 1,
-    "ncomps": 1,
 }
 
 if platformConfig.name == "perlmutter":
-    baseline["ngpus"] = 1
+    baseline["ntasks_per_node"] = 4
 
 configs = [
     {**baseline, "name": "lci", "parcelport": "lci"},
-    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
 ]
 run_as_one_job = False
 
@@ -61,14 +40,22 @@ if __name__ == "__main__":
                 exit(1)
 
     root_path = os.path.realpath(os.path.join(get_current_script_path(), "../.."))
-    for i in range(n):
-        if run_as_one_job:
-            for nnodes in configs[0]["nnodes_list"]:
-                spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
+    if run_as_one_job:
+        spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
+        for nnodes in configs[0]["nnodes_list"]:
+            for i in range(n):
                 submit_job("slurm.py", tag, nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
-        else:
-            for config in configs:
+    else:
+        current_spack_env = None
+        for config in configs:
+            if current_spack_env != config["spack_env"]:
                 spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
-                # print(config)
-                for nnodes in config["nnodes_list"]:
-                    submit_job("slurm.py", tag, nnodes, config, time ="1:00")
+                current_spack_env = config["spack_env"]
+            # print(config)
+            for nnodes in config["nnodes_list"]:
+                config["nnodes"] = nnodes
+                for i in range(n):
+                    time ="1:00"
+                    if get_platform_config('name', config) == "polaris":
+                        time = "5:00"
+                    submit_job("slurm.py", tag, nnodes, config, time=time)

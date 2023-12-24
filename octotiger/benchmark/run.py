@@ -10,7 +10,7 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "mpi",
+    "name": "lci",
     "spack_env": "hpx-lci",
     "nnodes_list": [32],
     "ntasks_per_node": 1,
@@ -44,6 +44,11 @@ if platformConfig.name == "perlmutter":
     # baseline["scenario"] = "dwd-l10-beginning"
     baseline["scenario"] = "dwd-l10-close_to_merger"
 
+if platformConfig.name == "delta":
+    baseline["spack_env"] = "hpx-lci-cpu"
+    # baseline["stop_step"] = 10
+    # baseline["scenario"] = "dwd-l10-close_to_merger"
+
 configs = [
     # # # LCI v.s. MPI
     {**baseline, "name": "lci", "parcelport": "lci"},
@@ -63,7 +68,7 @@ configs = [
     # {**baseline, "name": "lci_sendrecv", "protocol": "sendrecv"},
     # {**baseline, "name": "lci_sync", "comp_type": "sync"},
     # # # ndevices + progress_type
-    # {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
+    # # {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d2_c1", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d4_c1", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d8_c1", "ndevices": 8, "progress_type": "worker", "ncomps": 1},
@@ -102,6 +107,7 @@ if __name__ == "__main__":
 
     mkdir_s("./run")
 
+    tag = getenv_or("RUN_TAG", "default")
     os.environ["CURRENT_SCRIPT_PATH"] = os.path.dirname(os.path.realpath(__file__))
     if run_as_one_job:
         for config in configs:
@@ -114,7 +120,6 @@ if __name__ == "__main__":
         spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
         for nnodes in configs[0]["nnodes_list"]:
             for i in range(n):
-                tag = configs[0]["scenario"]
                 submit_job("slurm.py", tag, nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
     else:
         current_spack_env = None
@@ -125,12 +130,8 @@ if __name__ == "__main__":
             # print(config)
             for nnodes in config["nnodes_list"]:
                 config["nnodes"] = nnodes
-                tag = config["scenario"]
                 for i in range(n):
                     time ="1:00"
                     if get_platform_config('name', config) == "polaris":
                         time = "5:00"
-                    qos = None
-                    if get_platform_config('name', config) == "perlmutter" and nnodes <= 8:
-                        qos = "debug"
-                    submit_job("slurm.py", tag, nnodes, config, time=time, qos=qos)
+                    submit_job("slurm.py", tag, nnodes, config, time=time)

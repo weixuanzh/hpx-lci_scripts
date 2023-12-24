@@ -3,12 +3,12 @@ import pshell
 from platform_config_base import *
 
 
-def get_default_config():
+def get_octotiger_default_config():
     default_config = {
         "griddim": 8,
         "zc_threshold": 8192,
         "name": "lci",
-        "task": "rs",
+        "scenario": "rs",
         "parcelport": "lci",
         "max_level": 6,
         "protocol": "putva",
@@ -76,22 +76,26 @@ def get_octotiger_cmd(root_path, config):
     args = [
         "--hpx:ini=hpx.stacks.use_guard_pages=0",
         f"--hpx:ini=hpx.parcel.{config['parcelport']}.priority=1000",
-        f"--max_level={config['max_level']}",
-        f"--theta={get_theta(config)}",
-        "--correct_am_hydro=0",
         "--disable_output=on",
         "--amr_boundary_kernel_type=AMR_OPTIMIZED",
         f"--hpx:threads={int(platformConfig.cpus_per_node / platformConfig.cpus_per_core / get_config(config, 'ntasks_per_node', 1))}"
     ]
 
-    if config["task"] == "rs":
+    if config["scenario"] == "rs":
         config_filename = "rotating_star.ini"
-    elif config["task"] == "gr":
+    elif config["scenario"] == "gr":
         config_filename = "sphere.ini"
+    elif "dwd" in config["scenario"]:
+        config_filename = "dwd.ini"
     else:
         print("Unknown task!")
         exit(1)
-    args.append(f"--config_file={root_path}/octotiger/data/{config_filename}")
+    args.append(f"--config_file={config_filename}")
+
+    if "dwd" not in config["scenario"]:
+        args = append_config_if_exist(args, "--max_level={}", config, "max_level")
+        args.append(f"--theta={get_theta(config)}")
+        args.append("--correct_am_hydro=0")
 
     ngpus_to_use = get_config(config, "ngpus", platformConfig.gpus_per_node)
     if ngpus_to_use == 0:
@@ -156,9 +160,13 @@ def run_octotiger(root_path, config, extra_arguments=None):
     if platformConfig.numa_policy == "interleave":
         numactl_cmd = ["numactl", "--interleave=all"]
 
-    pshell.run(f"cd {root_path}/octotiger/data")
-    cmd = (["srun"] +
-           platformConfig.get_srun_pmi_option(config) +
+    scenario = "rs"
+    if "scenario" in config:
+        scenario = config["scenario"]
+    scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
+    pshell.run(f"cd {scenarios_path}")
+    cmd = (["srun", "-u"] +
+           get_platform_config("get_srun_pmi_option", config) +
            numactl_cmd +
            get_octotiger_cmd(root_path, config) +
            extra_arguments)
@@ -169,4 +177,4 @@ def run_octotiger(root_path, config, extra_arguments=None):
     pshell.run(cmd)
 
 if __name__ == "__main__":
-    run_octotiger(".", get_default_config())
+    run_octotiger(".", get_octotiger_default_config())

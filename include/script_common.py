@@ -95,7 +95,7 @@ def spack_env_activate(env):
     # if ret_stdout:
     #     pshell.run(ret_stdout.replace("\n", " ").strip()[:-1], to_print=False)
 
-def submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, extra_args):
+def submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args):
     if name is None:
         name = config["name"]
     pbs_args = [f"-A {get_platform_config('account', config, partition)}",
@@ -109,7 +109,7 @@ def submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, extra_a
         pbs_args += get_platform_config("additional_sbatch_args", config, extra_args)
     pshell.run(["qsub"] + pbs_args + [job_file])
 
-def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, extra_args):
+def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args):
     if name is None:
         name = config["name"]
     ntasks_per_node = 1
@@ -135,8 +135,10 @@ def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, extra
         partition = get_platform_config("partition", config)
     if partition:
         sbatch_args.append("--partition={} ".format(partition))
-    if get_platform_config("qos", config):
-        sbatch_args.append("--qos={} ".format(get_platform_config("qos", config)))
+    if not qos:
+        qos = get_platform_config("qos", config)
+    if qos:
+        sbatch_args.append("--qos={} ".format(qos))
     sbatch_args += get_platform_config("additional_sbatch_args", config, [])
     if extra_args:
         sbatch_args += extra_args
@@ -145,12 +147,12 @@ def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, extra
     command = f"sbatch {' '.join(sbatch_args)} {job_file} '{current_path}' '{json.dumps(config)}'"
     pshell.run(command)
 
-def submit_job(job_file, tag, nnodes, config, time="00:05:00", name=None, partition=None, extra_args=None):
+def submit_job(job_file, tag, nnodes, config, time="00:05:00", name=None, partition=None, qos=None, extra_args=None):
     scheduler = get_platform_config("scheduler", config, "slurm")
     if scheduler == "slurm":
-        submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, extra_args)
+        submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args)
     elif scheduler == "pbs":
-        submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, extra_args)
+        submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args)
 
 if __name__ == "__main__":
     spack_env_activate("hpx-lci")

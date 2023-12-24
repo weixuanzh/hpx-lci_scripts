@@ -10,7 +10,7 @@ assert len(sys.argv) > 1
 current_path = sys.argv[1]
 root_path = os.path.realpath(os.path.join(current_path, "../.."))
 # load configuration
-config = get_default_config()
+config = get_octotiger_default_config()
 if len(sys.argv) > 2:
     config = json.loads(sys.argv[2])
 print("Config: " + json.dumps(config))
