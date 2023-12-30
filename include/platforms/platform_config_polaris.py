@@ -5,7 +5,7 @@ from platform_config_base import *
 class PolarisConfig(PlatformConfigBase):
     name = "polaris"
     scheduler = "pbs"
-    network = "ofi"
+    network = "ss11"
     cpus_per_node = 64
     gpus_per_node = 4
     cpus_per_core = 2
@@ -22,5 +22,5 @@ class PolarisConfig(PlatformConfigBase):
         else:
             return "prod"
 
-    def get_srun_pmi_option(self, config):
+    def get_srun_pmi_args(self, config):
         return []

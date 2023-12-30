@@ -12,7 +12,7 @@ class ExpanseConfig(PlatformConfigBase):
     account = "uic193"
     partition = "compute"
 
-    def get_srun_pmi_option(self, config):
+    def get_srun_pmi_args(self, config):
         if config["parcelport"] == "lci":
             srun_pmi_option = ["--mpi=pmi2"]
         elif config["parcelport"] == "mpi":

@@ -1,7 +1,7 @@
 from script_common import *
 import pshell
 from platform_config_base import *
-
+from script_common_hpx import *
 
 def get_octotiger_default_config():
     default_config = {
@@ -41,26 +41,6 @@ def get_theta(config):
         print("invalid griddim {}!".format(griddim))
         exit(1)
     return theta
-
-
-def get_environ_setting(config):
-    ret = {
-        "LCI_SERVER_MAX_SENDS": "1024",
-        "LCI_SERVER_MAX_RECVS": "4096",
-        "LCI_SERVER_NUM_PKTS": "65536",
-        "LCI_SERVER_MAX_CQES": "65536",
-        "LCI_PACKET_SIZE": "12288",
-    }
-    if "match_table_type" in config:
-        ret["LCI_MT_BACKEND"] = config["match_table_type"]
-    if "cq_type" in config:
-        ret["LCI_CQ_TYPE"] = config["cq_type"]
-    if "reg_mem" in config and config["reg_mem"] or config["progress_type"] == "worker":
-        # We only use the registration cache when only one progress thread is doing the registration.
-        ret["LCI_USE_DREG"] = "0"
-    if "mem_reg_cache" in config:
-        ret["LCI_USE_DREG"] = str(config["mem_reg_cache"])
-    return ret
 
 
 def get_octotiger_cmd(root_path, config):
@@ -152,10 +132,13 @@ def get_octotiger_cmd(root_path, config):
     return cmd
 
 
+def get_octotiger_environ_setting(config):
+    return get_hpx_environ_setting(config)
+
 def run_octotiger(root_path, config, extra_arguments=None):
     if extra_arguments is None:
         extra_arguments = []
-    pshell.update_env(get_environ_setting(config))
+    pshell.update_env(get_octotiger_environ_setting(config))
     numactl_cmd = []
     if platformConfig.numa_policy == "interleave":
         numactl_cmd = ["numactl", "--interleave=all"]
@@ -166,7 +149,7 @@ def run_octotiger(root_path, config, extra_arguments=None):
     scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
     pshell.run(f"cd {scenarios_path}")
     cmd = (["srun", "-u"] +
-           get_platform_config("get_srun_pmi_option", config) +
+           get_platform_config("get_srun_pmi_args", config) +
            numactl_cmd +
            get_octotiger_cmd(root_path, config) +
            extra_arguments)

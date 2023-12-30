@@ -10,7 +10,7 @@ def get_platform_config_all():
         "module_init_file": "/usr/share/lmod/lmod/init/env_modules_python.py"
     }
 
-def get_srun_pmi_option(config):
+def get_srun_pmi_args(config):
     # Any additional srun option to use
     # You may need to pass --mpi=pmi2|pmix to specify the PMI backend
     return "--mpi=pmix"

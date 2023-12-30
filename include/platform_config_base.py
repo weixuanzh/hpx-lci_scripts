@@ -12,6 +12,12 @@ class PlatformConfigBase:
     partition = None
     additional_sbatch_args = []
 
+    def get_numactl_args(self, config):
+        args = []
+        if self.numa_policy == "interleave":
+            args = ["numactl", "--interleave=all"]
+        return args
+
 from platforms.platform_config_expanse import ExpanseConfig
 from platforms.platform_config_rostam import RostamConfig
 from platforms.platform_config_perlmutter import PerlmutterConfig

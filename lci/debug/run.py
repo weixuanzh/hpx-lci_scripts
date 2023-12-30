@@ -12,15 +12,14 @@ import time
 baseline = {
     "name": "hello_world",
     "spack_env": "hpx-lci",
-    "nnodes_list": [32],
-    "ntasks_per_node": 1,
+    "nnodes_list": [2],
+    "ntasks_per_node": 4,
+    "args": ["lci_hello_world"]
 }
 
-if platformConfig.name == "perlmutter":
-    baseline["ntasks_per_node"] = 4
-
 configs = [
-    {**baseline, "name": "lci", "parcelport": "lci"},
+    # baseline,
+    {**baseline, "name": "many2many_random", "args": ["lci_many2many_random", "--nthreads", "16"]}
 ]
 run_as_one_job = False
 

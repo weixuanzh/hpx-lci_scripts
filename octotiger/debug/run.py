@@ -11,7 +11,7 @@ import time
 
 baseline = {
     "name": "mpi",
-    "spack_env": "hpx-lci",
+    "spack_env": "hpx-lci-debug",
     "nnodes_list": [32],
     "ntasks_per_node": 1,
     "griddim": 8,
@@ -127,7 +127,7 @@ if __name__ == "__main__":
                 config["nnodes"] = nnodes
                 tag = config["scenario"]
                 for i in range(n):
-                    time ="1:00"
+                    time ="5:00"
                     if get_platform_config('name', config) == "polaris":
                         time = "5:00"
                     qos = None

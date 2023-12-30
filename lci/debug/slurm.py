@@ -11,7 +11,8 @@ root_path = os.path.realpath(os.path.join(current_path, "../.."))
 
 sys.path.append(os.path.join(root_path, "include"))
 import pshell
-from script_common_octotiger import *
+from platform_config_base import *
+from script_common_lci import *
 
 # load configuration
 config = None
@@ -25,14 +26,16 @@ else:
     configs = [config]
 
 if platformConfig.name == "perlmutter":
-    pshell.run("export FI_CXI_RX_MATCH_MODE=software")
     pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
-    if config["progress_type"] == "rp":
-        pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
 
 start_time = time.time()
 for config in configs:
-    print("Config: " + json.dumps(config))
-    run_octotiger(root_path, config)
+    pshell.update_env(get_lci_environ_setting(config))
+
+    cmd = (["srun", "-u"] +
+           get_platform_config("get_srun_pmi_args", config) +
+           get_platform_config("get_numactl_args", config) +
+           config["args"])
+    pshell.run(cmd)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))
