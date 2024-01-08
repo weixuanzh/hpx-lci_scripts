@@ -18,6 +18,9 @@ class PlatformConfigBase:
             args = ["numactl", "--interleave=all"]
         return args
 
+    def get_srun_args(self, config):
+        return ["srun"]
+
 from platforms.platform_config_expanse import ExpanseConfig
 from platforms.platform_config_rostam import RostamConfig
 from platforms.platform_config_perlmutter import PerlmutterConfig

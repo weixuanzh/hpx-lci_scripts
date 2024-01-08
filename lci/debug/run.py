@@ -12,14 +12,14 @@ import time
 baseline = {
     "name": "hello_world",
     "spack_env": "hpx-lci",
-    "nnodes_list": [2],
+    "nnodes_list": [32],
     "ntasks_per_node": 4,
     "args": ["lci_hello_world"]
 }
 
 configs = [
     # baseline,
-    {**baseline, "name": "many2many_random", "args": ["lci_many2many_random", "--nthreads", "16"]}
+    {**baseline, "name": "many2many_random", "args": ["lci_many2many_random", "--size", "40800", "--nthreads", "16"]}
 ]
 run_as_one_job = False
 

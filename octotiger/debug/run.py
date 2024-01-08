@@ -12,12 +12,12 @@ import time
 baseline = {
     "name": "mpi",
     "spack_env": "hpx-lci-debug",
-    "nnodes_list": [32],
+    "nnodes_list": [32, 64, 128],
     "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 4,
+    "max_level": 5,
     "stop_step": 5,
-    "zc_threshold": 8192,
+    "zc_threshold": 60000,
     "scenario": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
@@ -40,14 +40,27 @@ baseline = {
 if platformConfig.name == "perlmutter":
     baseline["ntasks_per_node"] = 4
     baseline["ngpus"] = 1
-    baseline["stop_step"] = 10
+    baseline["stop_step"] = 5
+    # baseline["scenario"] = "dwd-l10-beginning"
+    # baseline["scenario"] = "dwd-l10-close_to_merger"
+
+if platformConfig.name == "delta":
+    baseline["nnodes_list"] = [32]
+    baseline["ntasks_per_node"] = 4
+    baseline["stop_step"] = 5
     # baseline["scenario"] = "dwd-l10-beginning"
     baseline["scenario"] = "dwd-l10-close_to_merger"
+
+if platformConfig.name == "polaris":
+    baseline["spack_env"] = "hpx-lci"
+    baseline["nnodes_list"] = [4, 8, 16, 32]
+    baseline["ntasks_per_node"] = 4
+    baseline["ngpus"] = 1
 
 configs = [
     # # # LCI v.s. MPI
     {**baseline, "name": "lci", "parcelport": "lci"},
-    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
+    {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
     # {**baseline, "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
@@ -60,6 +73,7 @@ configs = [
     # {**baseline, "name": "lci-grid6", "parcelport": "lci", "griddim": 6},
     # {**baseline, "name": "lci-grid8", "parcelport": "lci", "griddim": 8},
     # # communication prototype + comp_type
+    # {**baseline, "name": "lci_putva", "protocol": "putva"},
     # {**baseline, "name": "lci_sendrecv", "protocol": "sendrecv"},
     # {**baseline, "name": "lci_sync", "comp_type": "sync"},
     # # # ndevices + progress_type
@@ -73,10 +87,10 @@ configs = [
     # {**baseline, "name": "lci_pin_d4_c1", "ndevices": 4, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "lci_pin_d8_c1", "ndevices": 8, "progress_type": "rp", "ncomps": 1},
     # # # ncomps
-    # # {**baseline, "name": "lci_mt_d4_c2", "ndevices": 4, "progress_type": "worker", "ncomps": 2},
-    # # {**baseline, "name": "lci_mt_d4_c4", "ndevices": 4, "progress_type": "worker", "ncomps": 4},
-    # # {**baseline, "name": "lci_pin_d4_c2", "ndevices": 4, "progress_type": "rp", "ncomps": 2},
-    # # {**baseline, "name": "lci_pin_d4_c4", "ndevices": 4, "progress_type": "rp", "ncomps": 4},
+    # {**baseline, "name": "lci_mt_d4_c2", "ndevices": 4, "progress_type": "worker", "ncomps": 2},
+    # {**baseline, "name": "lci_mt_d4_c4", "ndevices": 4, "progress_type": "worker", "ncomps": 4},
+    # {**baseline, "name": "lci_pin_d4_c2", "ndevices": 4, "progress_type": "rp", "ncomps": 2},
+    # {**baseline, "name": "lci_pin_d4_c4", "ndevices": 4, "progress_type": "rp", "ncomps": 4},
     # # # Upper-layer
     # {**baseline, "name": "lci_wo_i", "sendimm": 0},
     # {**baseline, "name": "lci_alock_wo_i", "special_branch": "ipdps_nohack1", "sendimm": 0},
@@ -85,10 +99,10 @@ configs = [
     # {**baseline, "name": "lci_atlock", "special_branch": "ipdps_nohack12"},
     # {**baseline, "name": "lci_agas_caching", "agas_caching": 1},
     # # # Memory Registration
-    # # {**baseline, "name": "lci_worker_cache", "ndevices": 1, "progress_type": "rp", "reg_mem": 1, "mem_reg_cache": 1},
-    # # {**baseline, "name": "lci_prg_cache", "ndevices": 1, "progress_type": "rp", "reg_mem": 0, "mem_reg_cache": 1},
-    # # {**baseline, "name": "lci_worker_nocache", "ndevices": 1, "progress_type": "rp", "reg_mem": 1, "mem_reg_cache": 0},
-    # # {**baseline, "name": "lci_prg_nocache", "ndevices": 1, "progress_type": "rp", "reg_mem": 0, "mem_reg_cache": 0},
+    # {**baseline, "name": "lci_worker_cache", "ndevices": 1, "progress_type": "rp", "reg_mem": 1, "mem_reg_cache": 1},
+    # {**baseline, "name": "lci_prg_cache", "ndevices": 1, "progress_type": "rp", "reg_mem": 0, "mem_reg_cache": 1},
+    # {**baseline, "name": "lci_worker_nocache", "ndevices": 1, "progress_type": "rp", "reg_mem": 1, "mem_reg_cache": 0},
+    # {**baseline, "name": "lci_prg_nocache", "ndevices": 1, "progress_type": "rp", "reg_mem": 0, "mem_reg_cache": 0},
     # # Memory Copy
     # {**baseline, "name": "lci_wo_in_buffer", "parcelport": "lci", "in_buffer_assembly": 0},
     # {**baseline, "name": "lci_wo_zc_recv", "parcelport": "lci", "zero_copy_recv": 0},
@@ -127,7 +141,7 @@ if __name__ == "__main__":
                 config["nnodes"] = nnodes
                 tag = config["scenario"]
                 for i in range(n):
-                    time ="5:00"
+                    time ="1:00"
                     if get_platform_config('name', config) == "polaris":
                         time = "5:00"
                     qos = None

@@ -33,7 +33,7 @@ for config in configs:
     pshell.update_env(get_lci_environ_setting(config))
 
     cmd = (["srun", "-u"] +
-           get_platform_config("get_srun_pmi_args", config) +
+           get_platform_config("get_srun_args", config) +
            get_platform_config("get_numactl_args", config) +
            config["args"])
     pshell.run(cmd)

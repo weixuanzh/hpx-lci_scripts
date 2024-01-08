@@ -98,16 +98,27 @@ def spack_env_activate(env):
 def submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args):
     if name is None:
         name = config["name"]
+    ntasks_per_node = 1
+    if "ntasks_per_node" in config:
+        ntasks_per_node = config["ntasks_per_node"]
+    job_name="{}-n{}-t{}-{}".format(tag, nnodes, ntasks_per_node, name)
+    output_filename = "./run/{}/".format(job_name)
+    if not os.path.exists(output_filename):
+        os.mkdir(output_filename)
     pbs_args = [f"-A {get_platform_config('account', config, partition)}",
                 "-k doe",
                 f"-l walltime={time}",
                 f"-l select={nnodes}",
                 f"-N {tag}-{name}",
-                f"-q {get_platform_config('partition', config, partition)}"
+                f"-q {get_platform_config('partition', config, partition)}",
+                f"-o {output_filename}",
+                f"-e {output_filename}",
+                "-V",
                 ]
     if get_platform_config("additional_sbatch_args", config, extra_args):
         pbs_args += get_platform_config("additional_sbatch_args", config, extra_args)
-    pshell.run(["qsub"] + pbs_args + [job_file])
+    command = ["qsub"] + pbs_args + [job_file]  #, "'" + current_path + "'", "'" + json.dumps(config) + "'"]
+    pshell.run(command)
 
 def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args):
     if name is None:
@@ -144,10 +155,12 @@ def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, 
         sbatch_args += extra_args
 
     current_path = get_current_script_path()
-    command = f"sbatch {' '.join(sbatch_args)} {job_file} '{current_path}' '{json.dumps(config)}'"
+    command = f"sbatch {' '.join(sbatch_args)} {job_file}"
     pshell.run(command)
 
 def submit_job(job_file, tag, nnodes, config, time="00:05:00", name=None, partition=None, qos=None, extra_args=None):
+    pshell.run("export CURRENT_PATH={}".format(get_current_script_path()))
+    pshell.run("export CONFIGS=\'{}\'".format(json.dumps(config)))
     scheduler = get_platform_config("scheduler", config, "slurm")
     if scheduler == "slurm":
         submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args)

@@ -4,7 +4,7 @@ from platform_config_base import *
 
 class DeltaConfig(PlatformConfigBase):
     name = "delta"
-    network = "ofi"
+    network = "ss11"
     cpus_per_node = 128
     gpus_per_node = 0
     cpus_per_core = 1
@@ -24,6 +24,6 @@ class DeltaConfig(PlatformConfigBase):
     def additional_sbatch_args(self):
         return []
 
-    def get_srun_pmi_args(self, config):
-        return []
+    def get_srun_args(self, config):
+        return ["srun"]
 

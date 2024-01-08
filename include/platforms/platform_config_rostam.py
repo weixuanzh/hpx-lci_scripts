@@ -11,5 +11,5 @@ class RostamConfig(PlatformConfigBase):
     account = None
     partition = "medusa"
 
-    def get_srun_pmi_args(self, config):
-        return ["--mpi=pmix"]
+    def get_srun_args(self, config):
+        return ["srun", "--mpi=pmix"]

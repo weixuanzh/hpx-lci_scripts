@@ -25,6 +25,6 @@ class PerlmutterConfig(PlatformConfigBase):
     def additional_sbatch_args(self):
         return ["--constraint=gpu"]
 
-    def get_srun_pmi_args(self, config):
-        return []
+    def get_srun_args(self, config):
+        return ["srun"]
 

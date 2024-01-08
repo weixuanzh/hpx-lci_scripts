@@ -1,7 +1,7 @@
 from platform_config_base import *
 def get_lci_environ_setting(config):
     ret = {
-        "LCI_SERVER_MAX_SENDS": "1024",
+        "LCI_SERVER_MAX_SENDS": "64",
         "LCI_SERVER_MAX_RECVS": "4096",
         "LCI_SERVER_NUM_PKTS": "65536",
         "LCI_SERVER_MAX_CQES": "65536",
