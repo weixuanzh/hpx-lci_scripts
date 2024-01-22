@@ -5,7 +5,7 @@
 spack:
   # add package specs to the `specs` list
   specs:
-  - octotiger@master+cuda+kokkos cuda_arch=80 cppflags="-L/opt/cray/pe/mpich/8.1.25/gtl/lib -lmpi_gtl_cuda" ^cppuddle max_number_gpus=4 ^hpx networking=lci,mpi max_cpu_count=256 ^cray-mpich ^lci+examples+tests+benchmarks fabric=ofi default-pm=cray
+  - octotiger@master ^hpx networking=lci,lcw,mpi ^openmpi@4.1.5 fabrics=ucx ^ ucx@1.14.0
   view: true
   concretizer:
     unify: true
@@ -19,3 +19,5 @@ spack:
     lcw:
       path: ../../../../lcw
       spec: lcw@=master
+  repos:
+  - /home/jiakuny/workspace/lcw/contrib/spack

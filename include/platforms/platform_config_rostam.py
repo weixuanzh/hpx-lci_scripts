@@ -10,6 +10,9 @@ class RostamConfig(PlatformConfigBase):
     numa_policy = "default"
     account = None
     partition = "medusa"
+    scenarios_path = {
+        "rs": "%root%/octotiger/data",
+    }
 
     def get_srun_args(self, config):
         return ["srun", "--mpi=pmix"]

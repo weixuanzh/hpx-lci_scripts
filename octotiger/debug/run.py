@@ -11,13 +11,13 @@ import time
 
 baseline = {
     "name": "mpi",
-    "spack_env": "hpx-lci-debug",
-    "nnodes_list": [32, 64, 128],
+    "spack_env": "hpx-lcw",
+    "nnodes_list": [2],
     "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 5,
+    "max_level": 3,
     "stop_step": 5,
-    "zc_threshold": 60000,
+    "zc_threshold": 8192,
     "scenario": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
@@ -28,13 +28,12 @@ baseline = {
     "backlog_queue": 0,
     "prepost_recv_num": 1,
     "zero_copy_recv": 1,
-    "in_buffer_assembly": 1,
+    # "in_buffer_assembly": 1,
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
     "ndevices": 1,
     "ncomps": 1,
-    "lcipp_log_level": "debug"
 }
 
 if platformConfig.name == "perlmutter":
@@ -42,7 +41,7 @@ if platformConfig.name == "perlmutter":
     baseline["ngpus"] = 1
     baseline["stop_step"] = 5
     # baseline["scenario"] = "dwd-l10-beginning"
-    # baseline["scenario"] = "dwd-l10-close_to_merger"
+    baseline["scenario"] = "dwd-l10-close_to_merger"
 
 if platformConfig.name == "delta":
     baseline["nnodes_list"] = [32]
@@ -52,15 +51,17 @@ if platformConfig.name == "delta":
     baseline["scenario"] = "dwd-l10-close_to_merger"
 
 if platformConfig.name == "polaris":
-    baseline["spack_env"] = "hpx-lci"
+    baseline["spack_env"] = "hpx-lcw"
     baseline["nnodes_list"] = [4, 8, 16, 32]
     baseline["ntasks_per_node"] = 4
     baseline["ngpus"] = 1
 
 configs = [
     # # # LCI v.s. MPI
+    # {**baseline, "name": "lcw", "parcelport": "lcw", "sendimm": 0},
+    # {**baseline, "name": "lcw_i", "parcelport": "lcw"},
     {**baseline, "name": "lci", "parcelport": "lci"},
-    {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
+    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
     # {**baseline, "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
@@ -141,7 +142,7 @@ if __name__ == "__main__":
                 config["nnodes"] = nnodes
                 tag = config["scenario"]
                 for i in range(n):
-                    time ="1:00"
+                    time ="5:00"
                     if get_platform_config('name', config) == "polaris":
                         time = "5:00"
                     qos = None

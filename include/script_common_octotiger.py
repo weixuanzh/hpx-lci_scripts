@@ -125,7 +125,6 @@ def get_octotiger_cmd(root_path, config):
         args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.ncomps={}", config, "ncomps")
         args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.enable_in_buffer_assembly={}", config,
                                       "in_buffer_assembly")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.log_level={}", config, "lcipp_log_level")
 
 
     cmd = ["octotiger"] + args

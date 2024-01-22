@@ -2,14 +2,17 @@ from subprocess import Popen, PIPE
 import os, sys
 import threading
 import random
+import time
+
 
 class ThreadReadio(threading.Thread):
-    def __init__(self, io, outfile, term_words):
+    def __init__(self, io, outfile, term_words, command):
         threading.Thread.__init__(self)
         self.ret = None
         self.io = io
         self.outfile = outfile
         self.term_words = term_words
+        self.command = command
 
     def run(self):
         content = ""
@@ -21,15 +24,17 @@ class ThreadReadio(threading.Thread):
                     content = content[:-len(self.term_words)]
                     break
                 if self.outfile:
-                    print(text, file=self.outfile)
+                    print(text, file=self.outfile, end='')
+                    self.outfile.flush()
         self.ret = content
+
 
 class PShell:
     def __init__(self):
-        self.proc = Popen(['bash'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        self.proc = Popen(['bash'], stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=False)
 
-    def run(self, command, to_print = True):
-        if type(command) is list:
+    def run(self, command, to_print=True):
+        if type(command) is list or type(command) is tuple:
             command = " ".join(command)
         secret = random.random()
         term_words = "\n{} done\n".format(secret)
@@ -40,43 +45,29 @@ class PShell:
         self.proc.stdin.flush()
 
         if to_print:
-            t1 = ThreadReadio(self.proc.stdout, sys.stdout, term_words)
-            t2 = ThreadReadio(self.proc.stderr, sys.stderr, term_words)
+            t1 = ThreadReadio(self.proc.stdout, sys.stdout, term_words, command)
+            t2 = ThreadReadio(self.proc.stderr, sys.stderr, term_words, command)
         else:
-            t1 = ThreadReadio(self.proc.stdout, None, term_words)
-            t2 = ThreadReadio(self.proc.stderr, None, term_words)
+            t1 = ThreadReadio(self.proc.stdout, None, term_words, command)
+            t2 = ThreadReadio(self.proc.stderr, None, term_words, command)
         t1.start()
         t2.start()
         t1.join()
         t2.join()
         return t1.ret, t2.ret
 
-    # def run(self, command, to_print = True):
-    #     cmd = command + " > {} 2>&1; printf \"{} done\n\"\n".format(self.tmp_output_name, self.tmp_output_name, command)
-    #     print("Execute: " + cmd)
-    #     sys.stdout.flush()
-    #     self.proc.stdin.write(cmd.encode('UTF-8'))
-    #     self.proc.stdin.flush()
-    #     while True:
-    #         tmp = self.proc.stdout.readline()
-    #         print("readline: " + tmp.decode('UTF-8'))
-    #         if "done" in tmp.decode('UTF-8'):
-    #             break
-    #     sys.stdout.flush()
-    #     with open(self.tmp_output_name, "r") as output:
-    #         lines = output.read().splitlines()
-    #         if to_print and lines:
-    #             print("\n".join(lines))
-    #         return lines
 
 pshell = PShell()
 
-def run(command, to_print = True):
+
+def run(command, to_print=True):
     return pshell.run(command, to_print)
 
-def update_env(environs, to_print = True):
+
+def update_env(environs, to_print=True):
     for key, val in environs.items():
         pshell.run("export {}={}".format(key, val))
+
 
 if __name__ == "__main__":
     run("echo hello")

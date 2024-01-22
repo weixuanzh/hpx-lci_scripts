@@ -5,7 +5,7 @@ def get_lci_environ_setting(config):
         "LCI_SERVER_MAX_RECVS": "4096",
         "LCI_SERVER_NUM_PKTS": "65536",
         "LCI_SERVER_MAX_CQES": "65536",
-        "LCI_PACKET_SIZE": "65536",
+        "LCI_PACKET_SIZE": "12288",
     }
     if "match_table_type" in config:
         ret["LCI_MT_BACKEND"] = config["match_table_type"]

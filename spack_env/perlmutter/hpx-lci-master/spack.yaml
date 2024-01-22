@@ -11,11 +11,8 @@ spack:
     unify: true
   develop:
     hpx:
-      path: ../../../../hpx
+      path: ../../../../hpx-master
       spec: hpx@=master
     lci:
       path: ../../../../LC
       spec: lci@=master
-    lcw:
-      path: ../../../../lcw
-      spec: lcw@=master

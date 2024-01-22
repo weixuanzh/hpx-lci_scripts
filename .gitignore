@@ -1,2 +1,6 @@
 .idea
 __pycache__
+run
+draw
+.spack-env
+spack.lock

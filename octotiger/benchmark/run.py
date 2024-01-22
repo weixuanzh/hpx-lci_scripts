@@ -34,7 +34,6 @@ baseline = {
     "reg_mem": 1,
     "ndevices": 1,
     "ncomps": 1,
-    "lcipp_log_level": "debug"
 }
 
 if platformConfig.name == "perlmutter":

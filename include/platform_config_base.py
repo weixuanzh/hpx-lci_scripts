@@ -26,6 +26,7 @@ from platforms.platform_config_rostam import RostamConfig
 from platforms.platform_config_perlmutter import PerlmutterConfig
 from platforms.platform_config_polaris import PolarisConfig
 from platforms.platform_config_delta import DeltaConfig
+from platforms.platform_config_frontera import FronteraConfig
 
 platformConfig = PlatformConfigBase()
 
@@ -43,6 +44,8 @@ elif "HOSTNAME" in os.environ and "polaris" in os.environ["HOSTNAME"] or \
 elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
         "SLURM_CLUSTER_NAME" in os.environ and os.environ["SLURM_CLUSTER_NAME"] == "delta":
     platformConfig = DeltaConfig()
+elif "TACC_SYSTEM" in os.environ and os.environ["TACC_SYSTEM"] == "frontera":
+    platformConfig = FronteraConfig()
 # else:
 #     print("Unknown platform!")
 #     exit(1)

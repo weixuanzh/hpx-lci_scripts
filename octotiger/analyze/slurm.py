@@ -29,15 +29,9 @@ if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
     pshell.run("export PMI_MAX_KVS_ENTRIES=2048")
     # if config["progress_type"] == "rp":
     #     pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
-# pshell.run("export LCI_LOG_LEVEL=debug")
 # pshell.run("export LCT_LOG_LEVEL=info")
-# pshell.run("export LCI_LOG_LEVEL=trace")
-# pshell.run("export LCI_OFI_PROVIDER_HINT=\"udp\"")
-# pshell.run("export HPX_LCI_LOG_LEVEL=debug")
-# pshell.run("export LCT_PMI_BACKEND=pmi2")
-# pshell.run("export LCT_PCOUNTER_MODE=on-the-fly")
-# pshell.run("export LCT_PCOUNTER_AUTO_DUMP=stderr")
-# pshell.run("ulimit -c unlimited")
+pshell.run("export HPX_LCI_LOG_LEVEL=profile")
+pshell.run("export HPX_LCI_LOG_OUTFILE=octotiger_analysis.%.out")
 
 start_time = time.time()
 for config in configs:
@@ -49,7 +43,7 @@ for config in configs:
     scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
     pshell.run(f"cd {scenarios_path}")
 
-    cmd = (get_platform_config("get_srun_args", config) + ["-u"] +
+    cmd = (get_platform_config("get_srun_args", config) +
            get_platform_config("get_numactl_args", config) +
            get_octotiger_cmd(root_path, config))
     pshell.run(cmd)

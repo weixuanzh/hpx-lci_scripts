@@ -10,25 +10,25 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "lci",
-    "spack_env": "hpx-lci",
+    "name": "mpi",
+    "spack_env": "hpx-lcw-debug",
     "nnodes_list": [2],
     "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 4,
-    "stop_step": 5,
+    "max_level": 3,
+    "stop_step": 0,
     "zc_threshold": 8192,
     "scenario": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
     "comp_type": "queue",
-    "progress_type": "worker",
+    "progress_type": "rp",
     "prg_thread_num": "auto",
     "sendimm": 1,
     "backlog_queue": 0,
     "prepost_recv_num": 1,
     "zero_copy_recv": 1,
-    "in_buffer_assembly": 1,
+    # "in_buffer_assembly": 1,
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
@@ -52,7 +52,6 @@ if __name__ == "__main__":
 
     mkdir_s("./run")
 
-    tag = getenv_or("RUN_TAG", "default")
     os.environ["CURRENT_SCRIPT_PATH"] = os.path.dirname(os.path.realpath(__file__))
     if run_as_one_job:
         for config in configs:
@@ -65,10 +64,12 @@ if __name__ == "__main__":
         if run_as_one_job:
             for nnodes in configs[0]["nnodes_list"]:
                 spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
-                submit_job("slurm.py", tag, nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
+                submit_job("slurm.py", "default", nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
         else:
             for config in configs:
                 spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
                 # print(config)
                 for nnodes in config["nnodes_list"]:
-                    submit_job("slurm.py", tag, nnodes, config, time ="1:00")
+                    config["nnodes"] = nnodes
+                    tag = config["scenario"]
+                    submit_job("slurm.py", tag, nnodes, config, time ="5:00")
