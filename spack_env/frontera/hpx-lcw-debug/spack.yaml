@@ -9,7 +9,7 @@ spack:
         - gcc # Your preferred compiler here
   # add package specs to the `specs` list
   specs:
-  - octotiger@master%gcc ^hpx networking=lci,lcw,mpi build_type=Debug ^mpich+slurm netmod=ucx ^lci+examples~enable-pmix+debug build_type=Debug ^ucx+verbs+rc+ud+mlx5_dv+ib_hw_tm+dc+thread_multiple+knem+cma+xpmem+rdmacm
+  - octotiger@master%gcc ^hpx networking=lci,lcw,mpi build_type=Debug ^mpich+slurm netmod=ucx ^lci+examples+tests~enable-pmix+debug build_type=Debug ^ucx+verbs+rc+ud+mlx5_dv+ib_hw_tm+dc+thread_multiple+knem+cma+xpmem+rdmacm
   view: true
   concretizer:
     unify: true

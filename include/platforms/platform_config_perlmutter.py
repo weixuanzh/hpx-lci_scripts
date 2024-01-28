@@ -9,8 +9,8 @@ class PerlmutterConfig(PlatformConfigBase):
     gpus_per_node = 4
     cpus_per_core = 2
     numa_policy = "default"
-    # account = "m4452"
-    account = "xpress"
+    account = "m4452"
+    # account = "xpress"
     partition = None
     qos = "regular"
     scenarios_path = {

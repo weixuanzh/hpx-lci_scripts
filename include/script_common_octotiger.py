@@ -53,6 +53,10 @@ def get_octotiger_cmd(root_path, config):
         if key in config:
             args.append(arg.format(config[key]))
         return args
+    def append_pp_config_if_exist(args, arg, config, key, parcelports):
+        if key in config and config["parcelport"] in parcelports:
+            args.append(arg.format(config["parcelport"], config[key]))
+        return args
     args = [
         "--hpx:ini=hpx.stacks.use_guard_pages=0",
         f"--hpx:ini=hpx.parcel.{config['parcelport']}.priority=1000",
@@ -102,29 +106,35 @@ def get_octotiger_cmd(root_path, config):
 
     args = append_config_if_exist(args, "--hpx:ini=hpx.agas.use_caching={}", config, "agas_caching")
     args = append_config_if_exist(args, "--stop_step={}", config, "stop_step")
-    args = append_config_if_exist(args, "--hpx:ini=hpx.parcel." + config['parcelport'] +
-                                  ".zero_copy_serialization_threshold={}", config, "zc_threshold")
-    args = append_config_if_exist(args, "--hpx:ini=hpx.parcel." + config['parcelport'] +
-                                  ".sendimm={}", config, "sendimm")
     args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.zero_copy_receive_optimization={}", config,
                                   "zero_copy_recv")
-    if config["parcelport"] == "lci":
-        if "prg_thread_num" in config:
-            if config["prg_thread_num"] == "auto":
-                prg_thread_num = config["ndevices"]
-            else:
-                prg_thread_num = config["prg_thread_num"]
-            args.append(f"--hpx:ini=hpx.parcel.lci.prg_thread_num={prg_thread_num}")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.protocol={}", config, "protocol")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.comp_type={}", config, "comp_type")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.progress_type={}", config, "progress_type")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.backlog_queue={}", config, "backlog_queue")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.prepost_recv_num={}", config, "prepost_recv_num")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.reg_mem={}", config, "reg_mem")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.ndevices={}", config, "ndevices")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.ncomps={}", config, "ncomps")
-        args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.lci.enable_in_buffer_assembly={}", config,
-                                      "in_buffer_assembly")
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.zero_copy_serialization_threshold={}",
+                                     config, "zc_threshold", ["mpi", "lci", "lcw"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.sendimm={}", config,
+                                     "sendimm", ["mpi", "lci", "lcw"])
+    if "prg_thread_num" in config:
+        if config["prg_thread_num"] == "auto":
+            config["prg_thread_num"] = config["ndevices"]
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.protocol={}", config,
+                                     "protocol", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.comp_type={}", config,
+                                     "comp_type", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.prepost_recv_num={}", config,
+                                     "prepost_recv_num", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.reg_mem={}", config,
+                                     "reg_mem", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.enable_in_buffer_assembly={}", config,
+                                     "in_buffer_assembly", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.prg_thread_num={}", config,
+                                     "prg_thread_num", ["lci", "lcw"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.progress_type={}", config,
+                                     "progress_type", ["lci", "lcw"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.backlog_queue={}", config,
+                                     "backlog_queue", ["lci", "lcw"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.ndevices={}", config,
+                                     "ndevices", ["lci", "lcw"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.ncomps={}", config,
+                                     "ncomps", ["lci", "lcw"])
 
 
     cmd = ["octotiger"] + args

@@ -59,10 +59,10 @@ if platformConfig.name == "polaris":
 configs = [
     # # # LCI v.s. MPI
     # {**baseline, "name": "lcw", "parcelport": "lcw", "sendimm": 0},
-    # {**baseline, "name": "lcw_i", "parcelport": "lcw"},
-    {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "lcw_i", "parcelport": "lcw"},
+    # {**baseline, "name": "lci", "parcelport": "lci"},
     # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
-    # {**baseline, "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
+    {**baseline, "name": "mpi_i", "parcelport": "mpi"},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
     # # {**baseline, "name": "mpi-grid6", "parcelport": "mpi", "sendimm": 0, "griddim": 6},

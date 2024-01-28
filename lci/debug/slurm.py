@@ -5,19 +5,18 @@ import json
 import time
 
 # load root path
-assert len(sys.argv) > 1
-current_path = sys.argv[1]
+current_path = os.environ["CURRENT_PATH"]
 root_path = os.path.realpath(os.path.join(current_path, "../.."))
 
 sys.path.append(os.path.join(root_path, "include"))
 import pshell
-from platform_config_base import *
 from script_common_lci import *
+from script_common import *
 
 # load configuration
-config = None
-if len(sys.argv) > 2:
-    config = json.loads(sys.argv[2])
+config_str = getenv_or("CONFIGS", None)
+print(config_str)
+config = json.loads(config_str)
 print("Config: " + json.dumps(config))
 
 if type(config) is list:
@@ -32,8 +31,7 @@ start_time = time.time()
 for config in configs:
     pshell.update_env(get_lci_environ_setting(config))
 
-    cmd = (["srun", "-u"] +
-           get_platform_config("get_srun_args", config) +
+    cmd = (get_platform_config("get_srun_args", config) +
            get_platform_config("get_numactl_args", config) +
            config["args"])
     pshell.run(cmd)
