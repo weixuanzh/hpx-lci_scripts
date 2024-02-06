@@ -10,19 +10,45 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "hello_world",
-    "spack_env": "hpx-lcw-debug",
-    "nnodes_list": [1],
-    "ntasks_per_node": 4,
-    "args": ["lci_hello_world"]
+    "name": "pingpong",
+    "spack_env": "hpx-lcw",
+    "nnodes_list": [2],
+    "ntasks_per_node": 1,
+    "args": ["pingpong_performance2", "--nbytes=8", "--nchains=1024", "--nsteps=10000"],
+    "parcelport": "lci",
+    "protocol": "putsendrecv",
+    "comp_type": "queue",
+    "progress_type": "worker",
+    "prg_thread_num": "auto",
+    "sendimm": 1,
+    "backlog_queue": 0,
+    "prepost_recv_num": 1,
+    "zero_copy_recv": 1,
+    "agas_caching": 0,
+    # "in_buffer_assembly": 1,
+    "match_table_type": "hashqueue",
+    "cq_type": "array_atomic_faa",
+    "reg_mem": 1,
+    "ndevices": 2,
+    "ncomps": 1,
+    "lcw_backend": "mpi"
 }
 
-configs = [
-    # baseline,
-    {**baseline, "name": "many2many_random", "args": ["lci_many2many_random", "--size", "40800", "--nthreads", "16"]}
-    # {**baseline, "name": "pt2pt", "args": ["lci_lcitb_pt2pt", "--max-msg-size", "8"]}
-]
-run_as_one_job = False
+configs = []
+for parcelport in ["lci"]:
+    # for nbytes in [8, 16384, 256*1024]:
+    for nbytes in [16384]:
+        # for intensity in [0]:
+        for intensity in [0, 50, 500]:
+            for nchains in [256, 512, 1024, 2048, 4096]:
+                configs.append({**baseline, "args": ["pingpong_performance2",
+                                                     "--nbytes={}".format(nbytes),
+                                                     "--nchains={}".format(nchains),
+                                                     "--intensity={}".format(intensity),
+                                                     "--nsteps=1000",
+                                                     "--enable-comp-timer=1"]})
+
+run_as_one_job = True
 
 if __name__ == "__main__":
     n = 1
@@ -55,7 +81,7 @@ if __name__ == "__main__":
             for nnodes in config["nnodes_list"]:
                 config["nnodes"] = nnodes
                 for i in range(n):
-                    time ="1:00"
+                    time ="10:00"
                     if get_platform_config('name', config) == "polaris":
                         time = "5:00"
                     submit_job("slurm.py", tag, nnodes, config, time=time)

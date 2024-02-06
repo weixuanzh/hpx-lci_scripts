@@ -1,6 +1,7 @@
 .idea
 __pycache__
 run
+data
 draw
 .spack-env
 spack.lock

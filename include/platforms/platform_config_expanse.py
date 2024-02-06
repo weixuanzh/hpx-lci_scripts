@@ -11,6 +11,7 @@ class ExpanseConfig(PlatformConfigBase):
     numa_policy = "interleave"
     account = "uic193"
     partition = "compute"
+    additional_sbatch_args = ["--mem=128G"]
 
     def get_srun_args(self, config):
         if config["parcelport"] == "lci":

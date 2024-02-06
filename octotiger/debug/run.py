@@ -12,10 +12,10 @@ import time
 baseline = {
     "name": "mpi",
     "spack_env": "hpx-lcw",
-    "nnodes_list": [2],
+    "nnodes_list": [8],
     "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 3,
+    "max_level": 5,
     "stop_step": 5,
     "zc_threshold": 8192,
     "scenario": "rs",
@@ -32,8 +32,9 @@ baseline = {
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
-    "ndevices": 1,
+    "ndevices": 2,
     "ncomps": 1,
+    "lcw_backend": "mpi"
 }
 
 if platformConfig.name == "perlmutter":
@@ -59,10 +60,11 @@ if platformConfig.name == "polaris":
 configs = [
     # # # LCI v.s. MPI
     # {**baseline, "name": "lcw", "parcelport": "lcw", "sendimm": 0},
-    {**baseline, "name": "lcw_i", "parcelport": "lcw"},
-    # {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "lcw_i", "parcelport": "lcw"},
+    # {**baseline, "name": "lcw-lci_i", "parcelport": "lcw", "lcw_backend": "lci"},
+    {**baseline, "name": "lci", "parcelport": "lci"},
     # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
-    {**baseline, "name": "mpi_i", "parcelport": "mpi"},
+    # {**baseline, "name": "mpi_i", "parcelport": "mpi"},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
     # # {**baseline, "name": "mpi-grid6", "parcelport": "mpi", "sendimm": 0, "griddim": 6},
@@ -107,6 +109,18 @@ configs = [
     # # Memory Copy
     # {**baseline, "name": "lci_wo_in_buffer", "parcelport": "lci", "in_buffer_assembly": 0},
     # {**baseline, "name": "lci_wo_zc_recv", "parcelport": "lci", "zero_copy_recv": 0},
+
+    # # # LCW
+    # # # ndevices + progress_type
+    # {**baseline, "name": "lcw_i_mt_d1_c1", "parcelport": "lcw", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_mt_d2_c1", "parcelport": "lcw", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_mt_d4_c1", "parcelport": "lcw", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_mt_d8_c1", "parcelport": "lcw", "ndevices": 8, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_mt_d14_c1", "parcelport": "lcw", "ndevices": 14, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_mt_d28_c1", "parcelport": "lcw", "ndevices": 28, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_mt_d56_c1", "parcelport": "lcw", "ndevices": 56, "progress_type": "worker", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_pin_d1_c1", "parcelport": "lcw", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
+    # {**baseline, "name": "lcw_i_pin_d2_c1", "parcelport": "lcw", "ndevices": 2, "progress_type": "rp", "ncomps": 1},
 ]
 run_as_one_job = False
 
@@ -142,10 +156,7 @@ if __name__ == "__main__":
                 config["nnodes"] = nnodes
                 tag = config["scenario"]
                 for i in range(n):
-                    time ="5:00"
+                    time ="1:00"
                     if get_platform_config('name', config) == "polaris":
                         time = "5:00"
-                    qos = None
-                    if get_platform_config('name', config) == "perlmutter" and nnodes <= 8:
-                        qos = "debug"
-                    submit_job("slurm.py", tag, nnodes, config, time=time, qos=qos)
+                    submit_job("slurm.py", tag, nnodes, config, time=time)

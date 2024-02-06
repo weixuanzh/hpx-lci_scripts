@@ -1,4 +1,5 @@
 from platform_config_base import *
+from script_common import *
 def get_lci_environ_setting(config):
     ret = {
         "LCI_SERVER_MAX_SENDS": "64",
@@ -15,4 +16,5 @@ def get_lci_environ_setting(config):
         ret["LCI_USE_DREG"] = str(config["mem_reg_cache"])
     if get_platform_config("network", config) == "ss11":
         ret["LCI_USE_DREG"] = 0
+        ret["LCI_ENABLE_PRG_NET_ENDPOINT"] = 0
     return ret

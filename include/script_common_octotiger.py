@@ -43,26 +43,10 @@ def get_theta(config):
     return theta
 
 
-def get_octotiger_cmd(root_path, config):
-    def get_config(config, key, default):
-        if key in config:
-            return config[key]
-        else:
-            return default
-    def append_config_if_exist(args, arg, config, key):
-        if key in config:
-            args.append(arg.format(config[key]))
-        return args
-    def append_pp_config_if_exist(args, arg, config, key, parcelports):
-        if key in config and config["parcelport"] in parcelports:
-            args.append(arg.format(config["parcelport"], config[key]))
-        return args
+def get_octotiger_cmd(config):
     args = [
-        "--hpx:ini=hpx.stacks.use_guard_pages=0",
-        f"--hpx:ini=hpx.parcel.{config['parcelport']}.priority=1000",
         "--disable_output=on",
         "--amr_boundary_kernel_type=AMR_OPTIMIZED",
-        f"--hpx:threads={int(platformConfig.cpus_per_node / platformConfig.cpus_per_core / get_config(config, 'ntasks_per_node', 1))}"
     ]
 
     if config["scenario"] == "rs":
@@ -104,40 +88,8 @@ def get_octotiger_cmd(root_path, config):
             "--hydro_device_kernel_type=CUDA"
         ]
 
-    args = append_config_if_exist(args, "--hpx:ini=hpx.agas.use_caching={}", config, "agas_caching")
     args = append_config_if_exist(args, "--stop_step={}", config, "stop_step")
-    args = append_config_if_exist(args, "--hpx:ini=hpx.parcel.zero_copy_receive_optimization={}", config,
-                                  "zero_copy_recv")
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.zero_copy_serialization_threshold={}",
-                                     config, "zc_threshold", ["mpi", "lci", "lcw"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.sendimm={}", config,
-                                     "sendimm", ["mpi", "lci", "lcw"])
-    if "prg_thread_num" in config:
-        if config["prg_thread_num"] == "auto":
-            config["prg_thread_num"] = config["ndevices"]
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.protocol={}", config,
-                                     "protocol", ["lci"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.comp_type={}", config,
-                                     "comp_type", ["lci"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.prepost_recv_num={}", config,
-                                     "prepost_recv_num", ["lci"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.reg_mem={}", config,
-                                     "reg_mem", ["lci"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.enable_in_buffer_assembly={}", config,
-                                     "in_buffer_assembly", ["lci"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.prg_thread_num={}", config,
-                                     "prg_thread_num", ["lci", "lcw"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.progress_type={}", config,
-                                     "progress_type", ["lci", "lcw"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.backlog_queue={}", config,
-                                     "backlog_queue", ["lci", "lcw"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.ndevices={}", config,
-                                     "ndevices", ["lci", "lcw"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.ncomps={}", config,
-                                     "ncomps", ["lci", "lcw"])
-
-
-    cmd = ["octotiger"] + args
+    cmd = ["octotiger"] + args + get_hpx_args(config)
     return cmd
 
 
@@ -160,7 +112,7 @@ def run_octotiger(root_path, config, extra_arguments=None):
     cmd = (["srun", "-u", "-l"] +
            get_platform_config("get_srun_args", config) +
            numactl_cmd +
-           get_octotiger_cmd(root_path, config) +
+           get_octotiger_cmd(config) +
            extra_arguments)
     cmd = " ".join(cmd)
     print(cmd)

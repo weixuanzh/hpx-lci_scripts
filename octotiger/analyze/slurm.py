@@ -45,7 +45,7 @@ for config in configs:
 
     cmd = (get_platform_config("get_srun_args", config) +
            get_platform_config("get_numactl_args", config) +
-           get_octotiger_cmd(root_path, config))
+           get_octotiger_cmd(config))
     pshell.run(cmd)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

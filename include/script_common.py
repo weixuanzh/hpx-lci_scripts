@@ -4,6 +4,7 @@ import shutil
 import copy
 import glob
 import json
+import itertools
 from platform_config_base import *
 import pshell
 
@@ -53,6 +54,17 @@ def getenv_or(key, default):
     else:
         return default
 
+def get_config(config, key, default):
+    if key in config and config[key] is not None:
+        return config[key]
+    else:
+        return default
+
+def append_config_if_exist(args, arg, config, key):
+    if key in config:
+        args.append(arg.format(config[key]))
+    return args
+
 def get_current_script_path():
     if "CURRENT_SCRIPT_PATH" in os.environ:
         return os.environ["CURRENT_SCRIPT_PATH"]
@@ -95,37 +107,39 @@ def spack_env_activate(env):
     # if ret_stdout:
     #     pshell.run(ret_stdout.replace("\n", " ").strip()[:-1], to_print=False)
 
-def submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args):
+def submit_pbs_job(job_file, tag, nnodes, configs, time, name, partition, qos, extra_args):
+    common_config = intersect_dicts(configs)
     if name is None:
-        name = config["name"]
+        name = common_config["name"]
     ntasks_per_node = 1
-    if "ntasks_per_node" in config:
-        ntasks_per_node = config["ntasks_per_node"]
+    if "ntasks_per_node" in common_config:
+        ntasks_per_node = common_config["ntasks_per_node"]
     job_name="{}-n{}-t{}-{}".format(tag, nnodes, ntasks_per_node, name)
     output_filename = "./run/{}/".format(job_name)
     if not os.path.exists(output_filename):
         os.mkdir(output_filename)
-    pbs_args = [f"-A {get_platform_config('account', config, partition)}",
+    pbs_args = [f"-A {get_platform_config('account', common_config, partition)}",
                 "-k doe",
                 f"-l walltime={time}",
                 f"-l select={nnodes}",
                 f"-N {tag}-{name}",
-                f"-q {get_platform_config('partition', config, partition)}",
+                f"-q {get_platform_config('partition', common_config, partition)}",
                 f"-o {output_filename}",
                 f"-e {output_filename}",
                 "-V",
                 ]
-    if get_platform_config("additional_sbatch_args", config, extra_args):
-        pbs_args += get_platform_config("additional_sbatch_args", config, extra_args)
-    command = ["qsub"] + pbs_args + [job_file]  #, "'" + current_path + "'", "'" + json.dumps(config) + "'"]
+    if get_platform_config("additional_sbatch_args", common_config, extra_args):
+        pbs_args += get_platform_config("additional_sbatch_args", common_config, extra_args)
+    command = ["qsub"] + pbs_args + [job_file]
     pshell.run(command)
 
-def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args):
+def submit_slurm_job(job_file, tag, nnodes, configs, time, name, partition, qos, extra_args):
+    common_config = intersect_dicts(configs)
     if name is None:
-        name = config["name"]
+        name = common_config["name"]
     ntasks_per_node = 1
-    if "ntasks_per_node" in config:
-        ntasks_per_node = config["ntasks_per_node"]
+    if "ntasks_per_node" in common_config:
+        ntasks_per_node = common_config["ntasks_per_node"]
     job_name="n{}-t{}-{}".format(nnodes, ntasks_per_node, name)
     output_filename = "./run/slurm_output.{}.%x.j%j.out".format(tag)
     sbatch_args = ["--export=ALL",
@@ -135,22 +149,22 @@ def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, 
                    f"--error={output_filename}",
                    f"--time={time}",
                    f"--ntasks-per-node={ntasks_per_node}",
-                   f"--cpus-per-task={int(get_platform_config('cpus_per_node', config) / ntasks_per_node)}",
+                   f"--cpus-per-task={int(get_platform_config('cpus_per_node', common_config) / ntasks_per_node)}",
                    ]
-    gpus_per_node = int(get_platform_config("gpus_per_node", config) / ntasks_per_node)
+    gpus_per_node = int(get_platform_config("gpus_per_node", common_config) / ntasks_per_node)
     if gpus_per_node:
         sbatch_args.append(f"--gpus-per-task={gpus_per_node}")
-    if get_platform_config("account", config):
-        sbatch_args.append("--account={}".format(get_platform_config("account", config)))
+    if get_platform_config("account", common_config):
+        sbatch_args.append("--account={}".format(get_platform_config("account", common_config)))
     if not partition:
-        partition = get_platform_config("partition", config)
+        partition = get_platform_config("partition", common_config)
     if partition:
         sbatch_args.append("--partition={} ".format(partition))
     if not qos:
-        qos = get_platform_config("qos", config)
+        qos = get_platform_config("qos", common_config)
     if qos:
         sbatch_args.append("--qos={} ".format(qos))
-    sbatch_args += get_platform_config("additional_sbatch_args", config, [])
+    sbatch_args += get_platform_config("additional_sbatch_args", common_config, [])
     if extra_args:
         sbatch_args += extra_args
 
@@ -158,14 +172,55 @@ def submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, 
     command = f"sbatch {' '.join(sbatch_args)} {job_file}"
     pshell.run(command)
 
-def submit_job(job_file, tag, nnodes, config, time="00:05:00", name=None, partition=None, qos=None, extra_args=None):
+def submit_job(job_file, tag, nnodes, configs, time=1, name=None, partition=None, qos=None, extra_args=None):
+    common_config = intersect_dicts(configs)
     pshell.run("export CURRENT_PATH={}".format(get_current_script_path()))
-    pshell.run("export CONFIGS=\'{}\'".format(json.dumps(config)))
-    scheduler = get_platform_config("scheduler", config, "slurm")
+    pshell.run("export CONFIGS=\'{}\'".format(json.dumps(configs)))
+    scheduler = get_platform_config("scheduler", common_config, "slurm")
     if scheduler == "slurm":
-        submit_slurm_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args)
+        submit_slurm_job(job_file, tag, nnodes, configs, time, name, partition, qos, extra_args)
     elif scheduler == "pbs":
-        submit_pbs_job(job_file, tag, nnodes, config, time, name, partition, qos, extra_args)
+        submit_pbs_job(job_file, tag, nnodes, configs, time, name, partition, qos, extra_args)
+
+def submit_jobs(configs, matrix_outside, matrix_inside, config_fn=None, tag=None, time=1, name=None, partition=None, qos=None, extra_args=None):
+    if tag is None:
+        tag = getenv_or("RUN_TAG", "default")
+    root_path = os.path.realpath(os.path.join(get_current_script_path(), "../.."))
+    flat_configs = flatten_configs(configs, matrix_outside, matrix_inside, config_fn)
+    current_spack_env = None
+    for configs_outside in flat_configs:
+        common_config = intersect_dicts(configs_outside)
+        if current_spack_env != common_config["spack_env"]:
+            spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, common_config["spack_env"]))
+            current_spack_env = common_config["spack_env"]
+        # print(config)
+        time_lb = get_platform_config("job_time_lb", common_config, 0)
+        if time < time_lb:
+            time = time_lb
+        submit_job("slurm.py", tag, common_config["nnodes"], configs_outside, time=time, name=name, partition=partition, qos=qos, extra_args=extra_args)
+
+def flatten_configs(configs, matrix_outside, matrix_inside, config_fn=None):
+    configs_outside = []
+    for config in configs:
+        valLists_outside = [config[key_outside] for key_outside in matrix_outside]
+        for comb_outside in itertools.product(*valLists_outside):
+            configs_inside = []
+            valLists_inside = [config[key_inside] for key_inside in matrix_inside]
+            for comb_inside in itertools.product(*valLists_inside):
+                result = {**config,
+                          **dict(zip(matrix_outside, comb_outside)),
+                          **dict(zip(matrix_inside, comb_inside))}
+                if config_fn is not None:
+                    result = config_fn(result)
+                configs_inside.append(result)
+            configs_outside.append(configs_inside)
+    return configs_outside
+
+def intersect_dicts(dicts):
+    if type(dicts) is not list:
+        return dicts
+    common_keys = set.intersection(*map(set, dicts))
+    return {k:dicts[0][k] for k in common_keys}
 
 if __name__ == "__main__":
     spack_env_activate("hpx-lci")

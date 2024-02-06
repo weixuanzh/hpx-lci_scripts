@@ -19,7 +19,7 @@ class FronteraConfig(PlatformConfigBase):
         if nnodes <= 40:
             ret, _ = pshell.run(["squeue", "-u", os.environ["USER"]], to_print=False)
             count = ret.count("development")
-            if count == 0:
+            if count <= 2:
                 return "development"
         if nnodes == 1:
             return "flex"

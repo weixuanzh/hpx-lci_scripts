@@ -16,6 +16,7 @@ class PolarisConfig(PlatformConfigBase):
     scenarios_path = {
         "rs": "%root%/octotiger/data",
     }
+    job_time_lb = 5
 
     def partition(self, config):
         nnodes = config["nnodes"]

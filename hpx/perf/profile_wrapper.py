@@ -25,27 +25,12 @@ if type(config) is list:
 else:
     configs = [config]
 
-if platformConfig.name == "perlmutter":
-    pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
-    if config["progress_type"] == "rp":
-        pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
+pshell.update_env(get_hpx_environ_setting(config))
+pshell.run("export LCI_USE_DREG=0")
 
-# pshell.run("export LCT_LOG_LEVEL=info")
-pshell.run("export LCI_LOG_LEVEL=info")
-# pshell.run("export LCT_PMI_BACKEND=pmi1")
-# pshell.run("ulimit -c unlimited")
-# pshell.run("env | grep PMI")
-
-pshell.update_env(get_octotiger_environ_setting(config))
-scenario = "rs"
-if "scenario" in config:
-    scenario = config["scenario"]
-scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
-pshell.run(f"cd {scenarios_path}")
-
+pshell.run("cd run")
 perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
 cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
        get_platform_config("get_numactl_args", config) +
-       get_octotiger_cmd(config))
+       config["args"] + get_hpx_args(config))
 pshell.run(cmd)
-os.rename(f"{scenarios_path}/{perf_output}", f"{current_path}/run/{perf_output}")
