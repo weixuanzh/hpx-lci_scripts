@@ -29,7 +29,7 @@ if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
     pshell.run("export PMI_MAX_KVS_ENTRIES=2048")
     # if config["progress_type"] == "rp":
     #     pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
-# pshell.run("export LCI_LOG_LEVEL=trace")
+# pshell.run("export LCI_LOG_LEVEL=info")
 # pshell.run("export LCT_LOG_LEVEL=info")
 # pshell.run("export LCI_OFI_PROVIDER_HINT=\"udp\"")
 # pshell.run("export HPX_LCI_LOG_LEVEL=debug")
@@ -38,6 +38,12 @@ if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
 # pshell.run("export LCT_PCOUNTER_AUTO_DUMP=stderr")
 # pshell.run("ulimit -c unlimited")
 # pshell.run("export LCI_ENABLE_PRG_NET_ENDPOINT=0")
+# pshell.run("export LCI_PAPI_EVENTS=PAPI_FP_OPS")
+# pshell.run("export FI_LOG_LEVEL=warn")
+# pshell.run("export FI_LOG_PROV=cxi")
+
+pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=10")
+pshell.run("export UCX_TLS=rc,self")
 
 start_time = time.time()
 for config in configs:

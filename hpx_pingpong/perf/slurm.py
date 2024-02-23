@@ -16,9 +16,6 @@ print(config_str)
 config = json.loads(config_str)
 print("Config: " + json.dumps(config))
 
-assert type(config) is list
-config = config[0]
-
 start_time = time.time()
 # pshell.run(f"cd {current_path}/run")
 scenario = "rs"

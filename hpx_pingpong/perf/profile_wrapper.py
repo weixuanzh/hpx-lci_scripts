@@ -18,7 +18,7 @@ from script_common import *
 config_str = getenv_or("CONFIGS", get_octotiger_default_config())
 # print(config_str)
 config = json.loads(config_str)
-# print("Config: " + json.dumps(config))
+print("Config: " + json.dumps(config))
 
 if type(config) is list:
     configs = config
@@ -26,12 +26,25 @@ else:
     configs = [config]
 assert len(configs) == 1
 
+def get_hpx_pingpong_args(config):
+    args = []
+    args = append_config_if_exist(args, "--nsteps={}", config, "nsteps")
+    args = append_config_if_exist(args, "--nchains={}", config, "nchains")
+    args = append_config_if_exist(args, "--nbytes={}", config, "nbytes")
+    args = append_config_if_exist(args, "--intensity={}", config, "intensity")
+    args = append_config_if_exist(args, "--is-single-source={}", config, "is_single_source")
+    args = append_config_if_exist(args, "--enable-comp-timer={}", config, "enable_comp_timer")
+    return ["pingpong_performance2"] + args + get_hpx_args(config)
+
 pshell.run("export LCI_USE_DREG=0")
 pshell.run("cd run")
+
 for config in configs:
     pshell.update_env(get_hpx_environ_setting(config))
+
     perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
     cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
            get_platform_config("get_numactl_args", config) +
-           config["args"] + get_hpx_args(config))
+           get_hpx_pingpong_args(config))
     pshell.run(cmd)
+end_time = time.time()

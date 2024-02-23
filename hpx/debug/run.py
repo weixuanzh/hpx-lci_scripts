@@ -11,10 +11,10 @@ import time
 
 baseline = {
     "name": "pingpong",
-    "spack_env": "hpx-lcw",
+    "spack_env": "hpx-lcw-amd",
     "nnodes_list": [2],
     "ntasks_per_node": 1,
-    "args": ["pingpong_performance2", "--nbytes=8", "--nchains=1024", "--nsteps=10000", "--batch-size=5"],
+    "args": ["lcw_pingpong_mt", "--nbytes=16384", "--nthreads=128", "--nsteps=10000", "--batch-size=5"],
     "parcelport": "lci",
     "protocol": "putsendrecv",
     "comp_type": "queue",

@@ -19,5 +19,3 @@ spack:
     lcw:
       path: ../../../../lcw
       spec: lcw@=master
-  repos:
-  - /home/jiakuny/workspace/lcw/contrib/spack

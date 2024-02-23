@@ -35,5 +35,5 @@ class PerlmutterConfig(PlatformConfigBase):
         return ["--constraint=gpu"]
 
     def get_srun_args(self, config):
-        return ["srun"]
+        return ["srun", "-l"]
 

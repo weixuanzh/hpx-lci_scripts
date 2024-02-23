@@ -10,10 +10,10 @@ from draw_simple import *
 import numpy as np
 import math
 
-job_name = "20240205-all"
+job_name = "20240223-rostam"
 input_path = "data/"
 output_path = "draw/"
-all_labels = ["name", "nbytes", "nchains", "intensity", "msg_rate(K/s)", "bandwidth(MB/s)"]
+all_labels = ["name", "nbytes", "nchains", "intensity", "msg_rate(K/s)", "bandwidth(MB/s)", "efficiency"]
 
 def plot(df, x_key, y_key, tag_key, title,
          filename = None, base = None, smaller_is_better = True, label_fn=None,
@@ -117,14 +117,13 @@ def plot(df, x_key, y_key, tag_key, title,
         json.dump({"Time": lines, "Speedup": speedup_lines}, outfile)
 
 def batch(df):
-    df["name"] = df.apply(lambda row: row["name"].split("-")[0], axis=1)
+    df["name"] = df.apply(lambda row: row["parcelport"] + "-d" + str(row["ndevices"]), axis=1)
     df["nthreads"] = df.apply(lambda row: 128 if pd.isna(row["nthreads"]) else row["nthreads"], axis=1)
 
     # nbytes
     df1_tmp = df[df.apply(lambda row:
                           row["nchains"] == 1024 and
-                          row["intensity"] == 0 and
-                          row["nthreads"] == 128,
+                          row["intensity"] == 0,
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nbytes", "latency(us)", "name", None,
@@ -134,55 +133,53 @@ def batch(df):
     # nchains
     df1_tmp = df[df.apply(lambda row:
                           row["nbytes"] == 8 and
-                          row["intensity"] == 0 and
-                          row["nthreads"] == 128,
-                          axis=1)]
-    df1 = df1_tmp.copy()
-    plot(df1, "nchains", "latency(us)", "name", None,
-         filename="nchains-8", base = "lci", smaller_is_better=True, with_error=True,
-         x_label="nchains", y_label="Latency (us)")
-
-    df1_tmp = df[df.apply(lambda row:
-                          row["nbytes"] == 16384 and
-                          row["intensity"] == 0 and
-                          row["nthreads"] == 128,
-                          axis=1)]
-    df1 = df1_tmp.copy()
-    plot(df1, "nchains", "latency(us)", "name", None,
-         filename="nchains-16384", base = "lci", smaller_is_better=True, with_error=True,
-         x_label="nchains", y_label="Latency (us)")
-
-    # intensity
-    df1_tmp = df[df.apply(lambda row:
-                          row["nbytes"] == 16384 and
-                          row["nchains"] == 1024 and
-                          row["nthreads"] == 128,
-                          axis=1)]
-    df1 = df1_tmp.copy()
-    plot(df1, "intensity", "latency(us)", "name", None,
-         filename="intensity", base = "lci", smaller_is_better=True, with_error=True,
-         x_label="intensity", y_label="Latency (us)", zero_x_is=1)
-
-    # nthreads
-    df1_tmp = df[df.apply(lambda row:
-                          row["nbytes"] == 8 and
-                          row["nchains"] == row["nthreads"] * 8 and
                           row["intensity"] == 0,
                           axis=1)]
     df1 = df1_tmp.copy()
-    plot(df1, "nthreads", "latency(us)", "name", None,
-         filename="nthreads-8", base = "lci", smaller_is_better=True, with_error=True,
-         x_label="nthreads", y_label="Latency (us)", zero_x_is=1)
+    plot(df1, "nchains", "msg_rate(K/s)", "name", None,
+         filename="nchains-8", base = "lci", smaller_is_better=False, with_error=True,
+         x_label="nchains", y_label="msg_rate(K/s)")
 
     df1_tmp = df[df.apply(lambda row:
                           row["nbytes"] == 16384 and
-                          row["nchains"] == row["nthreads"] * 8 and
                           row["intensity"] == 0,
                           axis=1)]
     df1 = df1_tmp.copy()
-    plot(df1, "nthreads", "latency(us)", "name", None,
-         filename="nthreads-16384", base = "lci", smaller_is_better=True, with_error=True,
-         x_label="nthreads", y_label="Latency (us)", zero_x_is=1)
+    plot(df1, "nchains", "msg_rate(K/s)", "name", None,
+         filename="nchains-16384", base = "lci", smaller_is_better=False, with_error=True,
+         x_label="nchains", y_label="Message Rate(K/s)")
+    #
+    # # intensity
+    # df1_tmp = df[df.apply(lambda row:
+    #                       row["nbytes"] == 16384 and
+    #                       row["nchains"] == 1024 and
+    #                       row["nthreads"] == 128,
+    #                       axis=1)]
+    # df1 = df1_tmp.copy()
+    # plot(df1, "intensity", "efficiency", "name", None,
+    #      filename="intensity", base = "lci", smaller_is_better=False, with_error=True,
+    #      x_label="intensity", y_label="Efficiency", zero_x_is=1)
+
+    # # nthreads
+    # df1_tmp = df[df.apply(lambda row:
+    #                       row["nbytes"] == 8 and
+    #                       row["nchains"] == row["nthreads"] * 8 and
+    #                       row["intensity"] == 0,
+    #                       axis=1)]
+    # df1 = df1_tmp.copy()
+    # plot(df1, "nthreads", "msg_rate(K/s)", "name", None,
+    #      filename="nthreads-8", base = "lci", smaller_is_better=True, with_error=True,
+    #      x_label="nthreads", y_label="msg_rate(K/s)", zero_x_is=1)
+    #
+    # df1_tmp = df[df.apply(lambda row:
+    #                       row["nbytes"] == 16384 and
+    #                       row["nchains"] == row["nthreads"] * 8 and
+    #                       row["intensity"] == 0,
+    #                       axis=1)]
+    # df1 = df1_tmp.copy()
+    # plot(df1, "nthreads", "msg_rate(K/s)", "name", None,
+    #      filename="nthreads-16384", base = "lci", smaller_is_better=True, with_error=True,
+    #      x_label="nthreads", y_label="msg_rate(K/s)", zero_x_is=1)
 
 if __name__ == "__main__":
     df = pd.read_csv(os.path.join(input_path, job_name + ".csv"))

@@ -109,8 +109,7 @@ def run_octotiger(root_path, config, extra_arguments=None):
         scenario = config["scenario"]
     scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
     pshell.run(f"cd {scenarios_path}")
-    cmd = (["srun", "-u", "-l"] +
-           get_platform_config("get_srun_args", config) +
+    cmd = (get_platform_config("get_srun_args", config) +
            numactl_cmd +
            get_octotiger_cmd(config) +
            extra_arguments)

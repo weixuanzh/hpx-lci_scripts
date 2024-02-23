@@ -5,17 +5,17 @@
 spack:
   # add package specs to the `specs` list
   specs:
-  - octotiger@master ^hpx+examples networking=lci,mpi ^openmpi@4.1.5 fabrics=ucx schedulers=slurm +pmi ^ ucx@1.14.0
+  - octotiger@develop ^hpx@develop networking=lci,mpi ^mpich+vci+slurm~hydra netmod=ucx pmi=slurm
   view: true
   concretizer:
-    unify: true
+    unify: false
   develop:
     octotiger:
       path: ../../../../octotiger
-      spec: octotiger@=master
+      spec: octotiger@=develop
+    mpich:
+      path: ../../../../mpich-master
+      spec: mpich@=develop
     hpx:
       path: ../../../../hpx-master
-      spec: hpx@=master
-    lci:
-      path: ../../../../LC
-      spec: lci@=master
+      spec: hpx@=develop

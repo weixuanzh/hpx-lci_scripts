@@ -120,7 +120,7 @@ def submit_pbs_job(job_file, tag, nnodes, configs, time, name, partition, qos, e
         os.mkdir(output_filename)
     pbs_args = [f"-A {get_platform_config('account', common_config, partition)}",
                 "-k doe",
-                f"-l walltime={time}",
+                f"-l walltime={time}:00",
                 f"-l select={nnodes}",
                 f"-N {tag}-{name}",
                 f"-q {get_platform_config('partition', common_config, partition)}",

@@ -10,14 +10,18 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "pingpong",
+    "name": "pingpong-lci",
     "spack_env": "hpx-lcw",
     "nnodes": [2],
     "ntasks_per_node": 1,
-    "args": ["lci_hello_world"],
-    # "args": ["pingpong_performance2", "--nchains=1024", "--nsteps=10000", "--batch-size=5"],
+    "nbytes": [8],
+    "nchains": [50000],
+    "nsteps": [1],
+    "intensity": [0],
+    "is_single_source": "1",
     "parcelport": "lci",
     "protocol": "putsendrecv",
+    "nthreads": [None],
     "comp_type": "queue",
     "progress_type": "worker",
     "prg_thread_num": "auto",
@@ -30,19 +34,21 @@ baseline = {
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
-    "ndevices": 1,
-    "ncomps": 1,
+    "ndevices": 10,
+    "ncomps": 4,
     "lcw_backend": "mpi"
 }
+if platformConfig.name == "rostam":
+    baseline["spack_env"] = "hpx-lcw-mpich-master"
 matrix_outside = ["nnodes"]
-matrix_inside = []
+matrix_inside = ["nbytes", "nchains", "nsteps", "intensity", "nthreads"]
 time_limit = 1
 
 configs = [
     # baseline,
-    {**baseline, "name": "lci"},
-    # {**baseline, "name": "mpi-nbytes", "parcelport": "mpi"},
-    # {**baseline, "name": "lcw_mpi-nbytes", "parcelport": "lcw"},
+    {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "mpi", "parcelport": "mpi"},
+    # {**baseline, "name": "lcw_mpi", "parcelport": "lcw"},
 ]
 
 if __name__ == "__main__":

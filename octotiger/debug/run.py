@@ -10,9 +10,9 @@ from script_common import *
 import time
 
 baseline = {
-    "name": "mpi",
+    "name": "lci",
     "spack_env": "hpx-lcw",
-    "nnodes_list": [8],
+    "nnodes": [32],
     "ntasks_per_node": 1,
     "griddim": 8,
     "max_level": 5,
@@ -36,6 +36,9 @@ baseline = {
     "ncomps": 1,
     "lcw_backend": "mpi"
 }
+matrix_outside = ["nnodes"]
+matrix_inside = []
+time_limit = 1
 
 if platformConfig.name == "perlmutter":
     baseline["ntasks_per_node"] = 4
@@ -45,7 +48,7 @@ if platformConfig.name == "perlmutter":
     baseline["scenario"] = "dwd-l10-close_to_merger"
 
 if platformConfig.name == "delta":
-    baseline["nnodes_list"] = [32]
+    baseline["nnodes"] = [32]
     baseline["ntasks_per_node"] = 4
     baseline["stop_step"] = 5
     # baseline["scenario"] = "dwd-l10-beginning"
@@ -53,18 +56,30 @@ if platformConfig.name == "delta":
 
 if platformConfig.name == "polaris":
     baseline["spack_env"] = "hpx-lcw"
-    baseline["nnodes_list"] = [4, 8, 16, 32]
+    baseline["nnodes"] = [4, 8, 16, 32]
     baseline["ntasks_per_node"] = 4
     baseline["ngpus"] = 1
 
+if platformConfig.name == "rostam":
+    baseline["spack_env"] = "hpx-lcw-mpich-master"
+    baseline["nnodes"] = [2, 4, 8, 12]
+    baseline["ntasks_per_node"] = 1
+    baseline["ngpus"] = 0
+
 configs = [
     # # # LCI v.s. MPI
-    # {**baseline, "name": "lcw", "parcelport": "lcw", "sendimm": 0},
-    # {**baseline, "name": "lcw_i", "parcelport": "lcw"},
-    # {**baseline, "name": "lcw-lci_i", "parcelport": "lcw", "lcw_backend": "lci"},
-    {**baseline, "name": "lci", "parcelport": "lci"},
-    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
-    # {**baseline, "name": "mpi_i", "parcelport": "mpi"},
+    # {**baseline, "name": "lcw_a", "parcelport": "lcw", "sendimm": 0},
+    # {**baseline, "name": "lcw_d1", "parcelport": "lcw", "ndevice": 1},
+    # {**baseline, "name": "lcw_d2", "parcelport": "lcw", "ndevice": 2},
+    # {**baseline, "name": "lcw_d4", "parcelport": "lcw", "ndevice": 4},
+    # {**baseline, "name": "lcw_d10", "parcelport": "lcw", "ndevice": 10},
+    # {**baseline, "name": "lcw-lci", "parcelport": "lcw", "lcw_backend": "lci"},
+    # {**baseline, "name": "lci_d1", "parcelport": "lci", "ndevices": 1},
+    # {**baseline, "name": "lci_d2", "parcelport": "lci", "ndevices": 2},
+    # {**baseline, "name": "lci_d4", "parcelport": "lci", "ndevices": 4},
+    # {**baseline, "name": "lci_d10", "parcelport": "lci", "ndevices": 10},
+    # {**baseline, "name": "mpi_a", "parcelport": "mpi", "sendimm": 0},
+    {**baseline, "name": "mpi", "parcelport": "mpi"},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
     # # {**baseline, "name": "mpi-grid6", "parcelport": "mpi", "sendimm": 0, "griddim": 6},
@@ -122,7 +137,6 @@ configs = [
     # {**baseline, "name": "lcw_i_pin_d1_c1", "parcelport": "lcw", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "lcw_i_pin_d2_c1", "parcelport": "lcw", "ndevices": 2, "progress_type": "rp", "ncomps": 1},
 ]
-run_as_one_job = False
 
 if __name__ == "__main__":
     n = 1
@@ -132,31 +146,6 @@ if __name__ == "__main__":
     mkdir_s("./run")
 
     os.environ["CURRENT_SCRIPT_PATH"] = os.path.dirname(os.path.realpath(__file__))
-    if run_as_one_job:
-        for config in configs:
-            if len(config["nnodes_list"]) > 1:
-                print("Cannot run as one job! Give up!")
-                exit(1)
 
-    root_path = os.path.realpath(os.path.join(get_current_script_path(), "../.."))
-    if run_as_one_job:
-        spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, configs[0]["spack_env"]))
-        for nnodes in configs[0]["nnodes_list"]:
-            for i in range(n):
-                tag = configs[0]["scenario"]
-                submit_job("slurm.py", tag, nnodes, configs, name="all", time ="00:00:{}".format(len(configs) * 30))
-    else:
-        current_spack_env = None
-        for config in configs:
-            if current_spack_env != config["spack_env"]:
-                spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, config["spack_env"]))
-                current_spack_env = config["spack_env"]
-            # print(config)
-            for nnodes in config["nnodes_list"]:
-                config["nnodes"] = nnodes
-                tag = config["scenario"]
-                for i in range(n):
-                    time ="1:00"
-                    if get_platform_config('name', config) == "polaris":
-                        time = "5:00"
-                    submit_job("slurm.py", tag, nnodes, config, time=time)
+    for i in range(n):
+        submit_jobs(configs, matrix_outside, matrix_inside, time=time_limit)

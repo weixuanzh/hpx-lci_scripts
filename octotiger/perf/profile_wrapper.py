@@ -20,10 +20,7 @@ config_str = getenv_or("CONFIGS", get_octotiger_default_config())
 config = json.loads(config_str)
 # print("Config: " + json.dumps(config))
 
-if type(config) is list:
-    configs = config
-else:
-    configs = [config]
+assert type(config) is not list
 
 if platformConfig.name == "perlmutter":
     pshell.run("export PMI_MAX_KVS_ENTRIES=1024")

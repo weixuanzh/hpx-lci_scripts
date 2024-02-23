@@ -3,17 +3,17 @@
 # It describes a set of packages to be installed, along with
 # configuration settings.
 spack:
-  packages:
-    all:
-      compiler:
-        - gcc # Your preferred compiler here
   # add package specs to the `specs` list
   specs:
-  - octotiger@master%gcc ^hpx networking=lci,lcw,mpi ^lci+examples+tests+benchmarks~enable-pmix ^mpich+slurm+vci netmod=ucx ^ucx+verbs+rc+ud+mlx5_dv+ib_hw_tm+dc+thread_multiple+knem+cma+xpmem+rdmacm
+  - octotiger@master ^hpx+examples networking=lci,lcw,mpi max_cpu_count=128 ^lci+examples+tests+benchmarks fabric=ofi
+  - hpx-bench@master
   view: true
   concretizer:
     unify: true
   develop:
+    hpx_bench:
+      path: ../../../../hpx_bench
+      spec: hpx-bench@=master
     hpx:
       path: ../../../../hpx-lcw
       spec: hpx@=master

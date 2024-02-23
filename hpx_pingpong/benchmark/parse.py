@@ -6,7 +6,7 @@ import ast
 import pandas as pd
 import os,sys
 
-name = "20240205-all"
+name = "20240223-rostam"
 input_path = "run/{}/slurm_output.*".format(name)
 output_path = "data/"
 line_patterns = [
@@ -17,6 +17,10 @@ line_patterns = [
 {
     "format": "latency\(us\)=(\S+)",
     "label": ["latency(us)"]
+},
+{
+    "format": "comp_efficiency=(\S+)",
+    "label": ["efficiency"]
 },
 {
     "format": "inject_rate\(K/s\)=(\S+)",
@@ -36,7 +40,7 @@ def get_typed_value(value):
     if value == '-nan':
         return np.nan
     try:
-        typed_value = ast.literal_eval(value)
+        typed_value = ast.literal_eval(value.replace('null', 'None'))
     except:
         typed_value = value
     return typed_value

@@ -15,4 +15,4 @@ class RostamConfig(PlatformConfigBase):
     }
 
     def get_srun_args(self, config):
-        return ["srun", "--mpi=pmix"]
+        return ["srun", "--mpi=pmi2"]
