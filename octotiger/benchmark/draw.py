@@ -1,85 +1,139 @@
 import pandas as pd
 import os,sys, json
 from matplotlib import pyplot as plt
+import matplotlib.cm as mplcm
+import matplotlib.colors as colors
+import itertools
 sys.path.append("../../include")
 from draw_simple import *
+from draw_bokeh import plot_bokeh
 import numpy as np
+import math
 
-name = "20240222-rostam-l5"
+job_name = "20240219-perlmutter"
 input_path = "data/"
-all_labels = ["nnodes", "job", "parcelport", "nthreads", "max_level", "tag", "Total(s)"]
+output_path = "draw/"
+all_labels = ["nnodes", "scenario", "job", "parcelport", "nthreads", "max_level", "tag", "Total(s)"]
 
-def plot(df, x_key, y_key, tag_key, filename, title = None, baseline = None, label_dict=None, with_error=True):
-    if label_dict is None:
-        label_dict = {}
-    if title == None:
-        title = filename
+def plot(df, x_key, y_key, tag_key, title,
+         x_label=None, y_label=None,
+         dirname=None, filename=None,
+         label_fn=None, zero_x_is=0,
+         base=None, smaller_is_better=True,
+         with_error=True, position="all"):
+    plot_bokeh(df, x_key, y_key, tag_key, title,
+               x_label=x_label, y_label=y_label,
+               dirname=dirname, filename=filename,
+               label_fn=label_fn, zero_x_is=zero_x_is)
+    if x_label is None:
+        x_label = x_key
+    if y_label is None:
+        y_label = y_key
 
     df = df.sort_values(by=[tag_key, x_key])
+    lines = parse_tag(df, x_key, y_key, tag_key)
+
+    # fig, ax = plt.subplots(figsize=(4.8, 3.6))
+    # update labels
+    if label_fn is not None:
+        for line in lines:
+            line["label"] = label_fn(line["label"])
+    # handle 0
+    if zero_x_is != 0:
+        for line in lines:
+            line["x"] = [zero_x_is if x == 0 else x for x in line["x"]]
 
     fig, ax = plt.subplots()
-    lines = parse_tag(df, x_key, y_key, tag_key)
-    # update labels
-    if label_dict != None:
-        for line in lines:
-            print(line)
-            label = line["label"]
-            if label in label_dict:
-                line["label"] = label_dict[line["label"]]
-
+    # Setup colors
+    # cmap_tab20=plt.get_cmap('tab20')
+    # ax.set_prop_cycle(color=[cmap_tab20(i) for i in chain(range(0, 20, 2), range(1, 20, 2))])
+    markers = itertools.cycle(('D', 'o', 'v', ',', '+'))
     # time
     for line in lines:
+        marker = next(markers)
+        line["marker"] = marker
         if with_error:
-            ax.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker='.', markerfacecolor='white', capsize=3)
+            line["error"] = [0 if math.isnan(x) else x for x in line["error"]]
+            ax.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=marker, markerfacecolor='white', capsize=3, markersize=8, linewidth=2)
         else:
-            ax.plot(line["x"], line["y"], label=line["label"], marker='.', markerfacecolor='white')
-    ax.set_xlabel(x_key)
-    ax.set_ylabel(y_key)
+            ax.plot(line["x"], line["y"], label=line["label"], marker=marker, markerfacecolor='white', markersize=8, linewidth=2)
+    ax.set_xlabel(x_label)
+    if position == "all" or position == "left":
+        ax.set_ylabel(y_label)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
     ax.set_title(title)
     # ax.legend(bbox_to_anchor = (1.05, 0.6))
-    ax.legend()
+    # ax.legend(bbox_to_anchor=(1.01, 1.01))
 
     # speedup
-    ax2 = ax.twinx()
-    map_label_line = {}
+    baseline = None
+    ax2 = None
+    speedup_lines = None
     for line in lines:
-        map_label_line[line["label"]] = line
-    speedup_lines = []
-    if baseline != None:
+        if base == line["label"]:
+            baseline = line
+            break
+    if baseline:
+        ax2 = ax.twinx()
+        speedup_lines = []
         for line in lines:
-            baseline_label = baseline(line["label"])
-            assert(line["x"] == map_label_line[baseline_label]["x"])
-            speedup = [float(b) / float(x) for x, b in zip(line["y"], map_label_line[baseline_label]["y"])]
+            if line['label'] == baseline['label']:
+                ax2.plot(line["x"], [1 for x in range(len(line["x"]))], linestyle='dotted')
+                continue
+            if smaller_is_better:
+                speedup = [float(x) / float(b) for x, b in zip(line["y"], baseline["y"])]
+                label = "{} / {}".format(line['label'], baseline['label'])
+            else:
+                speedup = [float(b) / float(x) for x, b in zip(line["y"], baseline["y"])]
+                label = "{} / {}".format(baseline['label'], line['label'])
             speedup_lines.append({"label": line["label"], "x": line["x"], "y": speedup})
-            ax2.plot(line["x"], speedup, label=line['label'], marker='.', markerfacecolor='white', linestyle='dashed')
-    ax2.set_ylabel("Speedup")
-    # ax.legend(bbox_to_anchor = (1.05, 0.6))
+            ax2.plot(line["x"][:len(speedup)], speedup, label=label, marker=line["marker"], markerfacecolor='white', linestyle='dotted', markersize=8, linewidth=2)
+        if position == "all" or position == "right":
+            ax2.set_ylabel("Speedup")
     # ax2.legend()
 
-    output_png_name = os.path.join("draw", "{}.png".format(filename))
-    fig.savefig(output_png_name)
-    output_json_name = os.path.join("draw", "{}.json".format(filename))
+    # ask matplotlib for the plotted objects and their labels
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width, box.height * 0.8])
+    if ax2:
+        lines1, labels1 = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper left', bbox_to_anchor=(0, 1.2), ncol=3, fancybox=True)
+    else:
+        ax.legend()
+    ax.tick_params(axis='y', which='both')
+    # ax.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+    # ax.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+
+    plt.tight_layout()
+
+    if filename is None:
+        filename = title
+
+    if not os.path.exists(dirname):
+        os.mkdir(dirname)
+    output_png_name = os.path.join(dirname, "{}.png".format(filename))
+    fig.savefig(output_png_name, bbox_inches='tight')
+    output_json_name = os.path.join(dirname, "{}.json".format(filename))
     with open(output_json_name, 'w') as outfile:
         json.dump({"Time": lines, "Speedup": speedup_lines}, outfile)
 
 def batch(df):
-    # df["tag"] = df.apply(lambda row: "l10-close_to_merger" if row["tag"] == "default" else row["tag"], axis=1)
-    df["tag"] = df.apply(lambda row: "{}-d{}".format(row["parcelport"], row["ndevices"]) if row["parcelport"] != "mpi" else "mpi", axis=1)
+    dirname = os.path.join(output_path, job_name)
+
+    # df["tag"] = df.apply(lambda row: "{}-d{}".format(row["parcelport"], row["ndevices"]) if row["parcelport"] != "mpi" else "mpi", axis=1)
+    df["tag"] = df.apply(lambda row: "{}-{}".format(row["scenario"], row["parcelport"]), axis=1)
 
     df1_tmp = df[df.apply(lambda row:
                           row["nnodes"] >= 2,
                           axis=1)]
     df1 = df1_tmp.copy()
-    # df1["parcelport-level"] = df1["parcelport"] + "-" + df1["tag"].astype(str)
-    # def baseline_fn(label):
-    #     return label.replace("lci", "mpi")
-    def baseline_fn(label):
-        return "mpi"
-    plot(df1, "nnodes", "Total(s)", "tag", name + "-brief", title="MPI parcelport v.s. LCI parcelport",
-         baseline=baseline_fn, label_dict=None, with_error=False)
+    plot(df1, "nnodes", "Total(s)", "tag", job_name + "-brief", "MPI parcelport v.s. LCI parcelport",
+         dirname=dirname, filename="mpi_vs_lci", base="mpi", with_error=False)
 
 
 if __name__ == "__main__":
-    df = pd.read_csv(os.path.join(input_path, name + ".csv"))
+    df = pd.read_csv(os.path.join(input_path, job_name + ".csv"))
     # interactive(df)
     batch(df)

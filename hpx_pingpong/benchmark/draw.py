@@ -4,9 +4,9 @@ from matplotlib import pyplot as plt
 import matplotlib.cm as mplcm
 import matplotlib.colors as colors
 import itertools
-from itertools import chain
 sys.path.append("../../include")
 from draw_simple import *
+from draw_bokeh import plot_bokeh
 import numpy as np
 import math
 
@@ -16,19 +16,24 @@ output_path = "draw/"
 all_labels = ["name", "nbytes", "nchains", "intensity", "msg_rate(K/s)", "bandwidth(MB/s)", "efficiency"]
 
 def plot(df, x_key, y_key, tag_key, title,
-         filename = None, base = None, smaller_is_better = True, label_fn=None,
-         with_error=True, x_label=None, y_label=None, position="all",
-         zero_x_is=0):
+         x_label=None, y_label=None,
+         dirname=None, filename=None,
+         label_fn=None, zero_x_is=0,
+         base=None, smaller_is_better=True,
+         with_error=True, position="all"):
+    plot_bokeh(df, x_key, y_key, tag_key, title,
+               x_label=x_label, y_label=y_label,
+               dirname=dirname, filename=filename,
+               label_fn=label_fn, zero_x_is=zero_x_is)
     if x_label is None:
         x_label = x_key
     if y_label is None:
         y_label = y_key
 
     df = df.sort_values(by=[tag_key, x_key])
-
-    fig, ax = plt.subplots()
-    # fig, ax = plt.subplots(figsize=(4.8, 3.6))
     lines = parse_tag(df, x_key, y_key, tag_key)
+
+    # fig, ax = plt.subplots(figsize=(4.8, 3.6))
     # update labels
     if label_fn is not None:
         for line in lines:
@@ -38,6 +43,7 @@ def plot(df, x_key, y_key, tag_key, title,
         for line in lines:
             line["x"] = [zero_x_is if x == 0 else x for x in line["x"]]
 
+    fig, ax = plt.subplots()
     # Setup colors
     # cmap_tab20=plt.get_cmap('tab20')
     # ax.set_prop_cycle(color=[cmap_tab20(i) for i in chain(range(0, 20, 2), range(1, 20, 2))])
@@ -105,9 +111,6 @@ def plot(df, x_key, y_key, tag_key, title,
     if filename is None:
         filename = title
 
-    if not os.path.exists(output_path):
-        os.mkdir(output_path)
-    dirname = os.path.join(output_path, job_name)
     if not os.path.exists(dirname):
         os.mkdir(dirname)
     output_png_name = os.path.join(dirname, "{}.png".format(filename))
@@ -117,6 +120,8 @@ def plot(df, x_key, y_key, tag_key, title,
         json.dump({"Time": lines, "Speedup": speedup_lines}, outfile)
 
 def batch(df):
+    dirname = os.path.join(output_path, job_name)
+
     df["name"] = df.apply(lambda row: row["parcelport"] + "-d" + str(row["ndevices"]), axis=1)
     df["nthreads"] = df.apply(lambda row: 128 if pd.isna(row["nthreads"]) else row["nthreads"], axis=1)
 
@@ -127,7 +132,7 @@ def batch(df):
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nbytes", "latency(us)", "name", None,
-         filename="nbytes", base = "lci", smaller_is_better=True, with_error=True,
+         dirname=dirname, filename="nbytes", base = "lci", smaller_is_better=True, with_error=True,
          x_label="nbytes", y_label="Latency (us)")
 
     # nchains
@@ -137,7 +142,7 @@ def batch(df):
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nchains", "msg_rate(K/s)", "name", None,
-         filename="nchains-8", base = "lci", smaller_is_better=False, with_error=True,
+         dirname=dirname, filename="nchains-8", base = "lci", smaller_is_better=False, with_error=True,
          x_label="nchains", y_label="msg_rate(K/s)")
 
     df1_tmp = df[df.apply(lambda row:
@@ -146,19 +151,18 @@ def batch(df):
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nchains", "msg_rate(K/s)", "name", None,
-         filename="nchains-16384", base = "lci", smaller_is_better=False, with_error=True,
+         dirname=dirname, filename="nchains-16384", base = "lci", smaller_is_better=False, with_error=True,
          x_label="nchains", y_label="Message Rate(K/s)")
-    #
-    # # intensity
-    # df1_tmp = df[df.apply(lambda row:
-    #                       row["nbytes"] == 16384 and
-    #                       row["nchains"] == 1024 and
-    #                       row["nthreads"] == 128,
-    #                       axis=1)]
-    # df1 = df1_tmp.copy()
-    # plot(df1, "intensity", "efficiency", "name", None,
-    #      filename="intensity", base = "lci", smaller_is_better=False, with_error=True,
-    #      x_label="intensity", y_label="Efficiency", zero_x_is=1)
+
+    # intensity
+    df1_tmp = df[df.apply(lambda row:
+                          row["nbytes"] == 16384 and
+                          row["nchains"] == 1024,
+                          axis=1)]
+    df1 = df1_tmp.copy()
+    plot(df1, "intensity", "efficiency", "name", None,
+         dirname=dirname, filename="intensity", base = "lci", smaller_is_better=False, with_error=True,
+         x_label="intensity", y_label="Efficiency", zero_x_is=1)
 
     # # nthreads
     # df1_tmp = df[df.apply(lambda row:

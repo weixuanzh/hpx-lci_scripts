@@ -52,4 +52,8 @@ def get_hpx_args(config):
                                      "ndevices", ["lci", "lcw"])
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.ncomps={}", config,
                                      "ncomps", ["lci", "lcw"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.send_nb_max_retry={}", config,
+                                     "send_nb_max_retry", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.mbuffer_alloc_max_retry={}", config,
+                                     "mbuffer_alloc_max_retry", ["lci"])
     return args

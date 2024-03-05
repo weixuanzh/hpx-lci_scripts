@@ -24,9 +24,6 @@ if type(config) is list:
 else:
     configs = [config]
 
-if platformConfig.name == "perlmutter":
-    pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
-
 start_time = time.time()
 for config in configs:
     pshell.update_env(get_lci_environ_setting(config))

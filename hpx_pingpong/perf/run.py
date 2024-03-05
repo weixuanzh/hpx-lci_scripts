@@ -15,7 +15,7 @@ baseline = {
     "nnodes": [2],
     "ntasks_per_node": 1,
     "nbytes": [8],
-    "nchains": [50000],
+    "nchains": [2000000],
     "nsteps": [1],
     "intensity": [0],
     "is_single_source": "1",
@@ -34,12 +34,18 @@ baseline = {
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
-    "ndevices": 10,
-    "ncomps": 4,
+    "ndevices": 32,
+    "ncomps": 1,
     "lcw_backend": "mpi"
 }
 if platformConfig.name == "rostam":
     baseline["spack_env"] = "hpx-lcw-mpich-master"
+if platformConfig.name == "delta":
+    # baseline["spack_env"] = "hpx-lcw-gcc12"
+    baseline["nthreads"] = [64]
+    # pass
+if platformConfig.name == "expanse":
+    baseline["spack_env"] = "hpx-lcw-relDeb"
 matrix_outside = ["nnodes"]
 matrix_inside = ["nbytes", "nchains", "nsteps", "intensity", "nthreads"]
 time_limit = 1

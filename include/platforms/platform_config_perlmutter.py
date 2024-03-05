@@ -19,6 +19,8 @@ class PerlmutterConfig(PlatformConfigBase):
         "dwd-l10-close_to_merger": "/pscratch/sd/j/jackyan/octotiger/q07_l10/close_to_merger",
         "dwd-l11-beginning": "/pscratch/sd/j/jackyan/octotiger/q07_l11/beginning",
         "dwd-l11-close_to_merger": "/pscratch/sd/j/jackyan/octotiger/q07_l11/close_to_merger",
+        "dwd-l12-beginning": "/pscratch/sd/j/jackyan/octotiger/q07_l12/beginning",
+        "dwd-l12-close_to_merger": "/pscratch/sd/j/jackyan/octotiger/q07_l12/close_to_merger",
     }
 
     def qos(self, config):
@@ -32,8 +34,11 @@ class PerlmutterConfig(PlatformConfigBase):
 
     @property
     def additional_sbatch_args(self):
-        return ["--constraint=gpu"]
+        return ["--constraint=\"gpu&hbm40g\""]
 
     def get_srun_args(self, config):
         return ["srun", "-l"]
+
+    def custom_env(self, config):
+        return {"PMI_MAX_KVS_ENTRIES": "4096"}
 

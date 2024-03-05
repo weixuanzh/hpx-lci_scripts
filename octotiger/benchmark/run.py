@@ -11,7 +11,7 @@ from script_common import *
 baseline = {
     "name": "lci",
     "spack_env": "hpx-lcw",
-    "nnodes": [64, 128],
+    "nnodes": [256],
     "ntasks_per_node": 1,
     "griddim": 8,
     "max_level": 5,
@@ -36,15 +36,16 @@ baseline = {
 }
 matrix_outside = ["nnodes", "ndevices"]
 matrix_inside = []
-time_limit = 1
+time_limit = 2
 
 if platformConfig.name == "perlmutter":
     baseline["ntasks_per_node"] = 4
     baseline["ngpus"] = 1
     baseline["stop_step"] = 10
-    baseline["scenario"] = "dwd-l10-beginning"
-    # baseline["scenario"] = "dwd-l10-close_to_merger"
+    # baseline["scenario"] = "dwd-l10-beginning"
+    baseline["scenario"] = "dwd-l10-close_to_merger"
     # baseline["scenario"] = "dwd-l11-close_to_merger"
+    # baseline["scenario"] = "dwd-l12-close_to_merger"
 
 if platformConfig.name == "delta":
     baseline["spack_env"] = "hpx-lci-cpu"
@@ -57,10 +58,10 @@ if platformConfig.name == "rostam":
 
 configs = [
     # # # LCI v.s. MPI
-    {**baseline, "name": "lci", "parcelport": "lci", "ndevices": [1, 2, 4, 8, 10]},
+    {**baseline, "name": "lci", "parcelport": "lci"},
     # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
-    {**baseline, "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
-    {**baseline, "name": "lcw", "parcelport": "lcw", "ndevices": [1, 2, 4, 8, 10]},
+    # {**baseline, "name": "mpi_i", "parcelport": "mpi", "sendimm": 1},
+    # {**baseline, "name": "lcw", "parcelport": "lcw"},
     # # # Different Problem Size
     # # {**baseline, "name": "mpi-grid4", "parcelport": "mpi", "sendimm": 0, "griddim": 4},
     # # {**baseline, "name": "mpi-grid6", "parcelport": "mpi", "sendimm": 0, "griddim": 6},

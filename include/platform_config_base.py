@@ -1,4 +1,5 @@
 import os, sys
+import script_common
 
 class PlatformConfigBase:
     name = "None"
@@ -20,6 +21,9 @@ class PlatformConfigBase:
 
     def get_srun_args(self, config):
         return ["srun"]
+
+    def custom_env(self, config):
+        return {}
 
 from platforms.platform_config_expanse import ExpanseConfig
 from platforms.platform_config_rostam import RostamConfig
@@ -53,6 +57,8 @@ elif "TACC_SYSTEM" in os.environ and os.environ["TACC_SYSTEM"] == "frontera":
 def get_platform_config(name, config, default=None):
     target = getattr(platformConfig, name, default)
     if callable(target):
+        if type(config) is list:
+            config = script_common.intersect_dicts(config)
         return target(config)
     else:
         return target

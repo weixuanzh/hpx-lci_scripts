@@ -24,11 +24,6 @@ if type(config) is list:
 else:
     configs = [config]
 
-if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
-    # pshell.run("export FI_CXI_RX_MATCH_MODE=software")
-    pshell.run("export PMI_MAX_KVS_ENTRIES=2048")
-    # if config["progress_type"] == "rp":
-    #     pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
 # pshell.run("export LCT_LOG_LEVEL=info")
 pshell.run("export HPX_LCI_LOG_LEVEL=profile")
 pshell.run("export HPX_LCI_LOG_OUTFILE=octotiger_analysis.%.out")

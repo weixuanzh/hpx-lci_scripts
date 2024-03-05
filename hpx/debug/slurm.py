@@ -24,8 +24,6 @@ if type(config) is list:
 else:
     configs = [config]
 
-if platformConfig.name == "perlmutter":
-    pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
 # pshell.run("export LCT_PCOUNTER_MODE=on-the-fly")
 # pshell.run("export LCT_PCOUNTER_AUTO_DUMP=stderr")
 # pshell.run("export LCT_PCOUNTER_RECORD_INTERVAL=10000000")

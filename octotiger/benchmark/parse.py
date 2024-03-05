@@ -8,7 +8,7 @@ import ast
 import pandas as pd
 import os,sys
 
-name = "20240222-rostam-l5"
+name = "20240219-perlmutter"
 input_path = "run/{}/slurm_output.*".format(name)
 output_path = "data/"
 filename_pattern = {

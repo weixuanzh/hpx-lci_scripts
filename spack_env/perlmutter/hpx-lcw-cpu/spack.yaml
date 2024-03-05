@@ -3,14 +3,25 @@
 # It describes a set of packages to be installed, along with
 # configuration settings.
 spack:
+  packages:
+    all:
+      compiler:
+        - gcc@12.3.0 # Your preferred compiler here
   # add package specs to the `specs` list
   specs:
-  - octotiger@master ^hpx networking=lci max_cpu_count=128 build_type=RelWithDebInfo ^lci build_type=RelWithDebInfo ^silo~mpi
-  - hpx-bench@master
+  - octotiger@master%gcc@12.3.0
+    ^cppuddle
+    ^hpx networking=lci,lcw,mpi max_cpu_count=256 
+    ^cray-mpich 
+    ^lci+examples+tests+benchmarks+papi fabric=ofi default-pm=cray 
+    ^silo~mpi
   view: true
   concretizer:
     unify: true
   develop:
+    octotiger:
+      path: ../../../../octotiger
+      spec: octotiger@=master
     hpx_bench:
       path: ../../../../hpx_bench
       spec: hpx-bench@=master

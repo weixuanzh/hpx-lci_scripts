@@ -24,13 +24,8 @@ if type(config) is list:
 else:
     configs = [config]
 
-if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
-    # pshell.run("export FI_CXI_RX_MATCH_MODE=software")
-    pshell.run("export PMI_MAX_KVS_ENTRIES=2048")
-    # if config["progress_type"] == "rp":
-    #     pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
-# pshell.run("export LCI_LOG_LEVEL=info")
-# pshell.run("export LCT_LOG_LEVEL=info")
+pshell.run("export LCI_LOG_LEVEL=info")
+pshell.run("export LCT_LOG_LEVEL=info")
 # pshell.run("export LCI_OFI_PROVIDER_HINT=\"udp\"")
 # pshell.run("export HPX_LCI_LOG_LEVEL=debug")
 # pshell.run("export LCT_PMI_BACKEND=pmi2")
@@ -41,9 +36,8 @@ if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
 # pshell.run("export LCI_PAPI_EVENTS=PAPI_FP_OPS")
 # pshell.run("export FI_LOG_LEVEL=warn")
 # pshell.run("export FI_LOG_PROV=cxi")
-
-pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=10")
-pshell.run("export UCX_TLS=rc,self")
+# pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=10")
+# pshell.run("export UCX_TLS=rc,self")
 
 start_time = time.time()
 for config in configs:

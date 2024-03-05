@@ -5,7 +5,9 @@
 spack:
   # add package specs to the `specs` list
   specs:
-  - octotiger@master ^hpx networking=lci max_cpu_count=128 build_type=RelWithDebInfo ^lci build_type=RelWithDebInfo ^silo~mpi
+  - octotiger@master ^hpx+examples networking=lci,lcw,mpi max_cpu_count=128 build_type=Debug 
+    ^lcw build_type=Debug
+    ^lci+examples+tests+benchmarks fabric=ofi build_type=Debug
   - hpx-bench@master
   view: true
   concretizer:
@@ -17,9 +19,9 @@ spack:
     hpx:
       path: ../../../../hpx-lcw
       spec: hpx@=master
-    lcw:
-      path: ../../../../lcw
-      spec: lcw@=master
     lci:
       path: ../../../../LC
       spec: lci@=master
+    lcw:
+      path: ../../../../lcw
+      spec: lcw@=master

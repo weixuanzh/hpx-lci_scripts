@@ -22,11 +22,6 @@ config = json.loads(config_str)
 
 assert type(config) is not list
 
-if platformConfig.name == "perlmutter":
-    pshell.run("export PMI_MAX_KVS_ENTRIES=1024")
-    if config["progress_type"] == "rp":
-        pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
-
 # pshell.run("export LCT_LOG_LEVEL=info")
 pshell.run("export LCI_LOG_LEVEL=info")
 # pshell.run("export LCT_PMI_BACKEND=pmi1")

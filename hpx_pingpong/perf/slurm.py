@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+
 # load root path
 current_path = os.environ["CURRENT_PATH"]
 root_path = os.path.realpath(os.path.join(current_path, "../.."))
@@ -17,7 +18,6 @@ config = json.loads(config_str)
 print("Config: " + json.dumps(config))
 
 start_time = time.time()
-# pshell.run(f"cd {current_path}/run")
 scenario = "rs"
 cmd = (get_platform_config("get_srun_args", config) + ["-u"] +
        [f"{current_path}/profile_wrapper.py"])

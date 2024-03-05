@@ -23,12 +23,10 @@ if type(config) is list:
 else:
     configs = [config]
 
-if platformConfig.name == "perlmutter" or platformConfig.name == "delta":
-    # pshell.run("export FI_CXI_RX_MATCH_MODE=software")
-    # pshell.run("export FI_CXI_DEFAULT_CQ_SIZE=263404")
-    # pshell.run("export FI_CXI_OFLOW_BUF_SIZE=12582912")
-    # pshell.run("export FI_CXI_CQ_FILL_PERCENT=20")
-    pshell.run("export PMI_MAX_KVS_ENTRIES=2048")
+# pshell.run("export FI_CXI_RX_MATCH_MODE=software")
+# pshell.run("export FI_CXI_DEFAULT_CQ_SIZE=263404")
+# pshell.run("export FI_CXI_OFLOW_BUF_SIZE=12582912")
+# pshell.run("export FI_CXI_CQ_FILL_PERCENT=20")
 # pshell.run("export LCI_LOG_LEVEL=info")
 # pshell.run("export LCT_LOG_LEVEL=info")
 # pshell.run("ulimit -c unlimited")
