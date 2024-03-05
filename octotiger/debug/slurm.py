@@ -24,8 +24,8 @@ if type(config) is list:
 else:
     configs = [config]
 
-pshell.run("export LCI_LOG_LEVEL=info")
-pshell.run("export LCT_LOG_LEVEL=info")
+# pshell.run("export LCI_LOG_LEVEL=info")
+# pshell.run("export LCT_LOG_LEVEL=info")
 # pshell.run("export LCI_OFI_PROVIDER_HINT=\"udp\"")
 # pshell.run("export HPX_LCI_LOG_LEVEL=debug")
 # pshell.run("export LCT_PMI_BACKEND=pmi2")

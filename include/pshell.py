@@ -70,16 +70,5 @@ def update_env(environs, to_print=True):
 
 
 if __name__ == "__main__":
-    run("echo hello")
-    run("echo world")
-    env = "/global/homes/j/jackyan/workspace/hpx-lci_scripts/spack_env/perlmutter/hpx-lci-debug"
-    _, ret_stderr = pshell.run("spack env activate {}".format(env), to_print=False)
-    if "Error" in ret_stderr:
-        for line in ret_stderr.splitlines():
-            if "setup-env.sh" in line:
-                pshell.run(line.strip())
-                _, ret_stderr = pshell.run("spack env activate {}".format(env))
-                break
-    print(ret_stderr)
-    assert not ret_stderr
-    run("octotiger")
+    run("export TEST=1")
+    run("env | grep TEST")

@@ -30,9 +30,8 @@ else:
 # pshell.run("export LCI_LOG_LEVEL=info")
 # pshell.run("export LCT_LOG_LEVEL=info")
 # pshell.run("ulimit -c unlimited")
-
-pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=10")
-pshell.run("export UCX_TLS=rc,self")
+# pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=10")
+# pshell.run("export UCX_TLS=rc,self")
 
 start_time = time.time()
 for config in configs:
