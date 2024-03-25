@@ -12,9 +12,14 @@ class ExpanseConfig(PlatformConfigBase):
     account = "uic193"
     partition = "compute"
     additional_sbatch_args = ["--mem=128G"]
+    scenarios_path = {
+        "rs": "%root%/octotiger/data",
+    }
 
     def get_srun_args(self, config):
-        if config["parcelport"] == "lci":
+        if "parcelport" not in config:
+            srun_pmi_option = ["--mpi=pmi2"]
+        elif config["parcelport"] == "lci":
             srun_pmi_option = ["--mpi=pmi2"]
         else:
             srun_pmi_option = ["--mpi=pmix"]

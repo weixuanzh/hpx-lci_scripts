@@ -5,7 +5,12 @@
 spack:
   # add package specs to the `specs` list
   specs:
-  - hpx-bench@master%gcc@12.3.0 ^hpx+examples networking=lci max_cpu_count=128 ^lci+examples+tests+benchmarks fabric=ofi
+  - octotiger@master%gcc@11.2.1
+    ^hpx+examples networking=lci,lcw,mpi max_cpu_count=128 
+    ^lci+examples+tests+benchmarks fabric=ofi
+    ^cray-mpich
+    ^silo~mpi
+  - hpx-bench@master
   view: true
   concretizer:
     unify: true

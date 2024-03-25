@@ -182,11 +182,17 @@ def submit_job(job_file, tag, nnodes, configs, time=1, name=None, partition=None
     elif scheduler == "pbs":
         submit_pbs_job(job_file, tag, nnodes, configs, time, name, partition, qos, extra_args)
 
-def submit_jobs(configs, matrix_outside, matrix_inside, config_fn=None, tag=None, time=1, name=None, partition=None, qos=None, extra_args=None):
+def submit_jobs(configs, matrix_outside=None, matrix_inside=None, update_outside=None, update_inside=None, config_fn=None, tag=None, time=1, name=None, partition=None, qos=None, extra_args=None):
+    if matrix_inside is None:
+        matrix_inside = []
+    if matrix_outside is None:
+        matrix_outside = ["nnodes"]
+    if update_inside is None:
+        update_inside = []
     if tag is None:
         tag = getenv_or("RUN_TAG", "default")
     root_path = os.path.realpath(os.path.join(get_current_script_path(), "../.."))
-    flat_configs = flatten_configs(configs, matrix_outside, matrix_inside, config_fn)
+    flat_configs = flatten_configs(configs, matrix_outside, matrix_inside, update_outside, update_inside, config_fn)
     current_spack_env = None
     for configs_outside in flat_configs:
         common_config = intersect_dicts(configs_outside)
@@ -199,22 +205,46 @@ def submit_jobs(configs, matrix_outside, matrix_inside, config_fn=None, tag=None
             time = time_lb
         submit_job("slurm.py", tag, common_config["nnodes"], configs_outside, time=time, name=name, partition=partition, qos=qos, extra_args=extra_args)
 
-def flatten_configs(configs, matrix_outside, matrix_inside, config_fn=None):
+def flatten_configs(configs, matrix_outside, matrix_inside, update_outside=None, update_inside=None, config_fn=None):
+    if not update_outside:
+        update_outside = [None]
+    if not update_inside:
+        update_inside = [None]
     configs_outside = []
     for config in configs:
-        valLists_outside = [config[key_outside] for key_outside in matrix_outside]
-        for comb_outside in itertools.product(*valLists_outside):
-            configs_inside = []
-            valLists_inside = [config[key_inside] for key_inside in matrix_inside]
-            for comb_inside in itertools.product(*valLists_inside):
-                result = {**config,
-                          **dict(zip(matrix_outside, comb_outside)),
-                          **dict(zip(matrix_inside, comb_inside))}
-                if config_fn is not None:
-                    result = config_fn(result)
-                configs_inside.append(result)
-            configs_outside.append(configs_inside)
+        for update_outside_entry in update_outside:
+            config1 = config.copy()
+            if update_outside_entry:
+                config1.update(update_outside_entry)
+            valLists_outside = [config1[key_outside] for key_outside in matrix_outside]
+            for comb_outside in itertools.product(*valLists_outside):
+                config2 = {**config1, **dict(zip(matrix_outside, comb_outside))}
+                configs_inside = []
+
+                # inside loop
+                for update_inside_entry in update_inside:
+                    config3 = config2.copy()
+                    if update_inside_entry:
+                        config3.update(update_inside_entry)
+                    valLists_inside = [config3[key_inside] for key_inside in matrix_inside]
+                    for comb_inside in itertools.product(*valLists_inside):
+                        result = {**config3,
+                                  **dict(zip(matrix_inside, comb_inside))}
+                        if config_fn is not None:
+                            result = config_fn(result)
+                        configs_inside.append(result)
+                configs_outside.append(configs_inside)
     return configs_outside
+
+def dict_product(base, dicts1, dicts2):
+    ret = []
+    for dict1 in dicts1:
+        for dict2 in dicts2:
+            result = base.copy()
+            result.update(dict1)
+            result.update(dict2)
+            ret.append(result)
+    return ret
 
 def intersect_dicts(dicts):
     if type(dicts) is not list:

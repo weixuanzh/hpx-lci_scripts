@@ -24,6 +24,9 @@ if type(config) is list:
 else:
     configs = [config]
 
+pshell.run("export LCI_LOG_LEVEL=debug")
+pshell.run("export LCT_LOG_LEVEL=debug")
+
 start_time = time.time()
 for config in configs:
     pshell.update_env(get_lci_environ_setting(config))

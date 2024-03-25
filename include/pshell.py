@@ -32,6 +32,11 @@ class ThreadReadio(threading.Thread):
 class PShell:
     def __init__(self):
         self.proc = Popen(['bash'], stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=False)
+        self.log_ofile = None
+        if 'PSHELL_LOG' in os.environ:
+            pshell_log = os.environ['PSHELL_LOG']
+            print("Pshell: writing commands to " + pshell_log)
+            self.log_ofile = open(pshell_log, 'a')
 
     def run(self, command, to_print=True):
         if type(command) is list or type(command) is tuple:
@@ -40,6 +45,8 @@ class PShell:
         term_words = "\n{} done\n".format(secret)
         cmd = command + "; printf \"{}\"; >&2 printf \"{}\"\n".format(term_words, term_words)
         print("Execute: " + command)
+        if self.log_ofile:
+            self.log_ofile.write(command + "\n")
         sys.stdout.flush()
         self.proc.stdin.write(cmd.encode('UTF-8'))
         self.proc.stdin.flush()

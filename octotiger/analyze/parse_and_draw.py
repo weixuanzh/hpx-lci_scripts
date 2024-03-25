@@ -2,6 +2,7 @@ import glob
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
 from tabulate import tabulate
 
 name="octotiger"
@@ -26,7 +27,9 @@ if __name__ == "__main__":
     #     if action == "start":
     #         time_scope[scope].append([time])
     #     else:
-    #         time_scope[scope][-1].append(time)
+    #         time_scope[scope][-1].append
+    plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.size"] = 14
 
     filenames = glob.glob(input_file)
     lines = list()
@@ -46,6 +49,7 @@ if __name__ == "__main__":
     total_size_list = []
     count = 0
     percent = 0
+    base_time_map = {}
     for line in lines:
         if float(len(lines)) * percent / 10 <= count:
             percent += 1
@@ -55,9 +59,16 @@ if __name__ == "__main__":
         if not m:
             continue
         total_size = 0
-        src_rank_list.append(int(m.group("rank")))
+        src_rank = int(m.group("rank"))
+        start_time = float(m.group("start_time"))
+        if src_rank not in base_time_map:
+            base_time_map[src_rank] = start_time
+            start_time = 0
+        else:
+            start_time -= base_time_map[src_rank]
+        src_rank_list.append(src_rank)
         dst_rank_list.append(int(m.group("dst_rank")))
-        start_time_list.append(float(m.group("start_time")))
+        start_time_list.append(start_time)
         nzc_size_list.append(int(m.group("nzc_size")))
         total_size += int(m.group("nzc_size"))
         if int(m.group("zc_num")) > 0:
@@ -96,12 +107,17 @@ if __name__ == "__main__":
     fig.tight_layout()
     plt.savefig("draw/{}-nbytes.png".format(name))
 
-    def stat_and_draw(ax, name, data):
+    def stat_and_draw(ax, name, data, bins=200, x_label=None, y_label=None):
         if len(data) == 0:
             return
         data_np = np.array(data)
-        ax.hist(data, bins=200)
+        ax.hist(data, bins=bins, weights=np.ones(len(data)) / len(data))
+        plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
         ax.set_title(name)
+        if x_label is not None:
+            ax.set_xlabel(x_label)
+        if y_label is not None:
+            ax.set_ylabel(y_label)
         return [name, len(data_np), data_np.mean(), data_np.std(), data_np.min(), data_np.max()]
 
     def stat_and_draw_time(ax, name, data):
@@ -123,7 +139,7 @@ if __name__ == "__main__":
         return [name, len(data_np), data_np.mean(), data_np.std(), np.min(data_np), np.max(data_np)]
 
 
-    def draw_trend(ax, name, time, data):
+    def draw_trend(ax, name, time, data, x_label=None, y_label=None, y2_label=None):
         if len(data) == 0:
             return
         time_np = np.array(time)
@@ -132,7 +148,7 @@ if __name__ == "__main__":
         time_np -= base_time
         duration = np.max(time_np)
         print(duration)
-        n, bins, patches = ax.hist(time_np, bins=int(duration / 0.1))
+        n, bins, patches = ax.hist(time_np, bins=int(duration / 0.1), label=y_label)
         # for i, scope in enumerate(time_scope):
         #     for j, (start, end) in enumerate(time_scope[scope]):
         #         start = start - base_time
@@ -152,17 +168,39 @@ if __name__ == "__main__":
         print(trend_x)
         print(trend_y)
         ax2 = ax.twinx()
-        ax2.plot(trend_x, trend_y, color="C1", label="total")
+        ax2.plot(trend_x, trend_y, color="C1", label=y2_label)
         ax.set_title(name)
-    fig, axs = plt.subplots(2, 3, figsize=(20, 10))
-    data = []
-    # data.append(stat_and_draw_time(axs[0][0], "start time", start_time_list, time_scope))
-    draw_trend(axs[0][0], "message size trend", start_time_list, total_size_list)
-    data.append(stat_and_draw(axs[0][1], "nzc chunk size", nzc_size_list))
-    data.append(stat_and_draw(axs[0][2], "tchunk size", tchunk_size_list))
-    data.append(stat_and_draw(axs[1][0], "zc chunk number", zc_num_list))
-    data.append(stat_and_draw(axs[1][1], "zc chunk size", chunks_list))
-    axs[1][2].set_axis_off()
+        lines1, labels1 = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines1 + lines2, labels1 + labels2, loc='best', ncol=1, fancybox=True)
+        if x_label is not None:
+            ax.set_xlabel(x_label)
+        if y_label is not None:
+            ax.set_ylabel(y_label)
+        if y2_label is not None:
+            ax2.set_ylabel(y2_label)
+
+    fig, ax = plt.subplots()
+    draw_trend(ax, "Messages Over Time", start_time_list, total_size_list,
+               x_label="Time (s)", y_label="Number", y2_label="Bytes")
+    fig.tight_layout()
+    plt.savefig("draw/{}-size_trend.png".format(name))
+
+    fig, ax = plt.subplots()
+    stat_and_draw(ax, "Message Size Distribution", nzc_size_list + total_size_list,
+                  x_label="Message Size (B)", y_label="Percentage", bins=100)
+    fig.tight_layout()
+    plt.savefig("draw/{}-size_dist.png".format(name))
+
+    # fig, axs = plt.subplots(2, 3, figsize=(20, 10))
+    # data = []
+    # # data.append(stat_and_draw_time(axs[0][0], "start time", start_time_list, time_scope))
+    # draw_trend(axs[0][0], "message size trend", start_time_list, total_size_list)
+    # data.append(stat_and_draw(axs[0][1], "nzc chunk size", nzc_size_list))
+    # data.append(stat_and_draw(axs[0][2], "tchunk size", tchunk_size_list))
+    # data.append(stat_and_draw(axs[1][0], "zc chunk number", zc_num_list))
+    # data.append(stat_and_draw(axs[1][1], "zc chunk size", chunks_list))
+    # axs[1][2].set_axis_off()
 
     # def format_text(headers, data):
     #     format_row = "{:>12}" * (len(headers) + 1) + "\n"
@@ -170,11 +208,12 @@ if __name__ == "__main__":
     #     for entry in data:
     #         text += format_row.format("", *entry)
     #     return text
-    text = tabulate(data, headers=["Name", "Count", "Mean", "STD", "Min", "Max"])
     # text = format_text(["Name", "Count", "Mean", "STD", "Min", "Max"], data)
-    print(text)
-    axs[1][2].text(0, 0, text, fontsize = 10)
-    plt.tight_layout()
-    plt.savefig("draw/{}.png".format(name))
+
+    # text = tabulate(data, headers=["Name", "Count", "Mean", "STD", "Min", "Max"])
+    # print(text)
+    # axs[1][2].text(0, 0, text, fontsize = 10)
+    # plt.tight_layout()
+    # plt.savefig("draw/{}.png".format(name))
 
 

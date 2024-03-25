@@ -27,3 +27,6 @@ class DeltaConfig(PlatformConfigBase):
     def get_srun_args(self, config):
         return ["srun"]
 
+    def custom_env(self, config):
+        return {"FI_CXI_RX_MATCH_MODE": "software"}
+

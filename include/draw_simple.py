@@ -166,6 +166,24 @@ def draw_simple(config):
         json.dump(lines, outfile)
     line_plot(title, x_key, y_key, lines, os.path.join(config["output"], "{}.png".format(config["name"])), False, is_show=False, is_save=True)
 
+def parse_simple(df, x_key, y_key):
+    xs = []
+    ys = []
+    errors = []
+    for x in df[x_key].unique():
+        y = df[df[x_key] == x][y_key].mean()
+        error = df[df[x_key] == x][y_key].std()
+        if y is np.nan:
+            continue
+        if y == 0:
+            continue
+        xs.append(x)
+        ys.append(float(y))
+        if math.isnan(error):
+            error = 0
+        errors.append(float(error))
+    return {"x": xs, "y": ys, "error": errors}
+
 def parse_tag(df, x_key, y_key, tag_key):
     lines = []
 

@@ -24,13 +24,15 @@ if type(config) is list:
     configs = config
 else:
     configs = [config]
+assert len(configs) == 1
 
-pshell.update_env(get_lci_environ_setting(config))
-pshell.run("export LCI_USE_DREG=0")
+pshell.run("export LCW_BACKEND_AUTO=lci")
 
 pshell.run("cd run")
-perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
-cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
-       get_platform_config("get_numactl_args", config) +
-       config["args"])
-pshell.run(cmd)
+for config in configs:
+    pshell.update_env(get_lci_environ_setting(config))
+    perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
+    cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
+           get_platform_config("get_numactl_args", config) +
+           config["args"])
+    pshell.run(cmd)

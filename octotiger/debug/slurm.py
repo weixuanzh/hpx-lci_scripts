@@ -24,12 +24,12 @@ if type(config) is list:
 else:
     configs = [config]
 
-# pshell.run("export LCI_LOG_LEVEL=info")
-# pshell.run("export LCT_LOG_LEVEL=info")
+pshell.run("export LCI_LOG_LEVEL=debug")
+pshell.run("export LCT_LOG_LEVEL=debug")
 # pshell.run("export LCI_OFI_PROVIDER_HINT=\"udp\"")
 # pshell.run("export HPX_LCI_LOG_LEVEL=debug")
 # pshell.run("export LCT_PMI_BACKEND=pmi2")
-# pshell.run("export LCT_PCOUNTER_MODE=on-the-fly")
+pshell.run("export LCT_PCOUNTER_MODE=on-the-fly")
 # pshell.run("export LCT_PCOUNTER_AUTO_DUMP=stderr")
 # pshell.run("ulimit -c unlimited")
 # pshell.run("export LCI_ENABLE_PRG_NET_ENDPOINT=0")
@@ -42,6 +42,8 @@ else:
 start_time = time.time()
 for config in configs:
     pshell.update_env(get_octotiger_environ_setting(config))
+    # pshell.run("export LCI_SERVER_NUM_PKTS=655360")
+    # pshell.run("export LCI_PACKET_SIZE=65536")
 
     scenario = "rs"
     if "scenario" in config:
@@ -50,8 +52,11 @@ for config in configs:
     pshell.run(f"cd {scenarios_path}")
 
     cmd = (get_platform_config("get_srun_args", config) + ["-u"] +
-           get_platform_config("get_numactl_args", config) +
-           get_octotiger_cmd(config))
+           # get_platform_config("get_numactl_args", config) +
+           get_octotiger_cmd(config)
+           # + ["--hpx:ini=hpx.max_idle_loop_count"]
+           # + ["--hpx:queuing=static"]
+           )
     pshell.run(cmd)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

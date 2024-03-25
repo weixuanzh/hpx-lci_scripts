@@ -18,9 +18,13 @@ from script_common import *
 config_str = getenv_or("CONFIGS", get_octotiger_default_config())
 # print(config_str)
 config = json.loads(config_str)
-# print("Config: " + json.dumps(config))
+print("Config: " + json.dumps(config))
 
-assert type(config) is not list
+if type(config) is list:
+    configs = config
+else:
+    configs = [config]
+assert len(configs) == 1
 
 # pshell.run("export LCT_LOG_LEVEL=info")
 pshell.run("export LCI_LOG_LEVEL=info")
@@ -28,16 +32,17 @@ pshell.run("export LCI_LOG_LEVEL=info")
 # pshell.run("ulimit -c unlimited")
 # pshell.run("env | grep PMI")
 
-pshell.update_env(get_octotiger_environ_setting(config))
-scenario = "rs"
-if "scenario" in config:
-    scenario = config["scenario"]
-scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
-pshell.run(f"cd {scenarios_path}")
+for config in configs:
+    pshell.update_env(get_octotiger_environ_setting(config))
+    scenario = "rs"
+    if "scenario" in config:
+        scenario = config["scenario"]
+    scenarios_path = get_platform_config("scenarios_path", config)[scenario].replace("%root%", root_path)
+    pshell.run(f"cd {scenarios_path}")
 
-perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
-cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
-       get_platform_config("get_numactl_args", config) +
-       get_octotiger_cmd(config))
-pshell.run(cmd)
-os.rename(f"{scenarios_path}/{perf_output}", f"{current_path}/run/{perf_output}")
+    perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
+    cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
+           get_platform_config("get_numactl_args", config) +
+           get_octotiger_cmd(config))
+    pshell.run(cmd)
+    os.rename(f"{scenarios_path}/{perf_output}", f"{current_path}/run/{perf_output}")

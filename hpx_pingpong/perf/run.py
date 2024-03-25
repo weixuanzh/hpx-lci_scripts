@@ -15,14 +15,16 @@ baseline = {
     "nnodes": [2],
     "ntasks_per_node": 1,
     "nbytes": [8],
-    "nchains": [2000000],
+    "nchains": [1000000],
     "nsteps": [1],
     "intensity": [0],
+    "batch_size": 100,
     "is_single_source": "1",
     "parcelport": "lci",
     "protocol": "putsendrecv",
     "nthreads": [None],
-    "comp_type": "queue",
+    "comp_type_header": "queue",
+    "comp_type_followup": "queue",
     "progress_type": "worker",
     "prg_thread_num": "auto",
     "sendimm": 1,
@@ -34,25 +36,26 @@ baseline = {
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
-    "ndevices": 32,
+    "ndevices": 2,
     "ncomps": 1,
     "lcw_backend": "mpi"
 }
 if platformConfig.name == "rostam":
-    baseline["spack_env"] = "hpx-lcw-mpich-master"
+    baseline["spack_env"] = "hpx-lcw-openmpi"
 if platformConfig.name == "delta":
-    # baseline["spack_env"] = "hpx-lcw-gcc12"
-    baseline["nthreads"] = [64]
+    baseline["spack_env"] = "hpx-lcw-sc24"
     # pass
 if platformConfig.name == "expanse":
-    baseline["spack_env"] = "hpx-lcw-relDeb"
+    baseline["spack_env"] = "hpx-lcw"
 matrix_outside = ["nnodes"]
 matrix_inside = ["nbytes", "nchains", "nsteps", "intensity", "nthreads"]
 time_limit = 1
 
 configs = [
     # baseline,
-    {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "lci_header_sync_single_nolock_poll", "ncomps": 2, "protocol": "sendrecv",
+     "comp_type_header": "sync_single_nolock", "progress_type": "poll", "bg_work_when_send": 0},
     # {**baseline, "name": "mpi", "parcelport": "mpi"},
     # {**baseline, "name": "lcw_mpi", "parcelport": "lcw"},
 ]

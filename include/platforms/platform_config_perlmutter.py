@@ -40,5 +40,5 @@ class PerlmutterConfig(PlatformConfigBase):
         return ["srun", "-l"]
 
     def custom_env(self, config):
-        return {"PMI_MAX_KVS_ENTRIES": "4096"}
+        return {"PMI_MAX_KVS_ENTRIES": "65536"}
 

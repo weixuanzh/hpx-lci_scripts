@@ -1,12 +1,10 @@
-from script_common_lci import *
+from script_common_lcw import *
 
 def get_hpx_environ_setting(config):
     ret = get_lci_environ_setting(config)
     if "reg_mem" in config and config["reg_mem"] or config["progress_type"] == "worker":
         # We only use the registration cache when only one progress thread is doing the registration.
         ret["LCI_USE_DREG"] = "0"
-    if "lcw_backend" in config:
-        ret["LCW_BACKEND_AUTO"] = config["lcw_backend"]
     return ret
 
 def get_hpx_args(config):
@@ -34,8 +32,10 @@ def get_hpx_args(config):
             config["prg_thread_num"] = config["ndevices"]
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.protocol={}", config,
                                      "protocol", ["lci"])
-    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.comp_type={}", config,
-                                     "comp_type", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.comp_type_header={}", config,
+                                     "comp_type_header", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.comp_type_followup={}", config,
+                                     "comp_type_followup", ["lci"])
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.prepost_recv_num={}", config,
                                      "prepost_recv_num", ["lci"])
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.reg_mem={}", config,
@@ -56,4 +56,6 @@ def get_hpx_args(config):
                                      "send_nb_max_retry", ["lci"])
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.mbuffer_alloc_max_retry={}", config,
                                      "mbuffer_alloc_max_retry", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.bg_work_when_send={}", config,
+                                     "bg_work_when_send", ["lci"])
     return args

@@ -38,10 +38,10 @@ def get_hpx_pingpong_args(config):
 
 pshell.run("cd run")
 # pshell.run("export LCI_LOG_LEVEL=info")
-pshell.run("export FI_LOG_LEVEL=warn")
-pshell.run("export FI_LOG_PROV=cxi")
-pshell.run("export FI_CXI_RX_MATCH_MODE=software")
-pshell.run("export LD_LIBRARY_PATH=/u/jiakuny/workspace/spack/opt/spack/linux-rhel8-zen3/gcc-11.4.0/gcc-12.3.0-6z74qxwlsdandmnyqmij3xt4peykm2q6/lib64/:/u/jiakuny/workspace/spack/opt/spack/linux-rhel8-zen3/gcc-11.4.0/gcc-12.3.0-6z74qxwlsdandmnyqmij3xt4peykm2q6/lib64/")
+# pshell.run("export FI_LOG_LEVEL=warn")
+# pshell.run("export FI_LOG_PROV=cxi")
+# pshell.run("export FI_CXI_RX_MATCH_MODE=software")
+# pshell.run("export LD_LIBRARY_PATH=/u/jiakuny/workspace/spack/opt/spack/linux-rhel8-zen3/gcc-11.4.0/gcc-12.3.0-6z74qxwlsdandmnyqmij3xt4peykm2q6/lib64/:/u/jiakuny/workspace/spack/opt/spack/linux-rhel8-zen3/gcc-11.4.0/gcc-12.3.0-6z74qxwlsdandmnyqmij3xt4peykm2q6/lib64/")
 
 for config in configs:
     pshell.update_env(get_hpx_environ_setting(config))

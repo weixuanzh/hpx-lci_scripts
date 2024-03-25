@@ -33,8 +33,9 @@ def get_hpx_pingpong_args(config):
     args = append_config_if_exist(args, "--enable-comp-timer={}", config, "enable_comp_timer")
     return ["pingpong_performance2"] + args + get_hpx_args(config)
 
-pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=20")
-pshell.run("export UCX_TLS=rc,self")
+# pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=20")
+# pshell.run("export UCX_TLS=rc,self")
+pshell.run("export TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=1677721600")
 
 start_time = time.time()
 for config in configs:

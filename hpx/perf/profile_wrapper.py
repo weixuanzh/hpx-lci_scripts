@@ -26,7 +26,6 @@ else:
     configs = [config]
 assert len(configs) == 1
 
-pshell.run("export LCI_USE_DREG=0")
 pshell.run("cd run")
 for config in configs:
     pshell.update_env(get_hpx_environ_setting(config))
