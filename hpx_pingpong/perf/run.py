@@ -14,11 +14,11 @@ baseline = {
     "spack_env": "hpx-lcw",
     "nnodes": [2],
     "ntasks_per_node": 1,
-    "nbytes": [8],
-    "nchains": [1000000],
+    "nbytes": [16384],
+    "nchains": [100000],
     "nsteps": [1],
     "intensity": [0],
-    "batch_size": 100,
+    "batch_size": 10,
     "is_single_source": "1",
     "parcelport": "lci",
     "protocol": "putsendrecv",
@@ -46,7 +46,7 @@ if platformConfig.name == "delta":
     baseline["spack_env"] = "hpx-lcw-sc24"
     # pass
 if platformConfig.name == "expanse":
-    baseline["spack_env"] = "hpx-lcw"
+    baseline["spack_env"] = "hpx-lcw-sc24"
 matrix_outside = ["nnodes"]
 matrix_inside = ["nbytes", "nchains", "nsteps", "intensity", "nthreads"]
 time_limit = 1
@@ -54,8 +54,8 @@ time_limit = 1
 configs = [
     # baseline,
     # {**baseline, "name": "lci", "parcelport": "lci"},
-    {**baseline, "name": "lci_header_sync_single_nolock_poll", "ncomps": 2, "protocol": "sendrecv",
-     "comp_type_header": "sync_single_nolock", "progress_type": "poll", "bg_work_when_send": 0},
+    # {**baseline, "name": "lci_sendrecv", "protocol": "sendrecv"},
+    {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "mpi", "parcelport": "mpi"},
     # {**baseline, "name": "lcw_mpi", "parcelport": "lcw"},
 ]

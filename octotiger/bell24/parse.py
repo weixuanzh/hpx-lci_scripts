@@ -8,7 +8,7 @@ import ast
 import pandas as pd
 import os,sys
 
-name = "20240330-expanse"
+name = "20240329-perlmutter"
 input_path = "run/{}/slurm_output.*".format(name)
 output_path = "data/"
 filename_pattern = {
@@ -96,16 +96,6 @@ if __name__ == "__main__":
 
     # df = df[all_labels]
     # df = df.sort_values(by=all_labels)
-
-    def name_fn(row):
-        if row["parcelport"] == "mpi" and row["sendimm"] == 0:
-            return "mpi_a"
-        elif row["parcelport"] == "mpi" and row["sendimm"] == 1:
-            return "mpi"
-        else:
-            return row["name"]
-
-    df["name"] = df.apply(name_fn, axis=1)
 
     if df.shape[0] == 0:
         print("Error! Get 0 entries!")

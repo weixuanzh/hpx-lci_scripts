@@ -10,9 +10,9 @@ from script_common import *
 
 baseline = {
     "name": "lci",
-    "spack_env": "hpx-lcw-sc24",
-    "nnodes": [64, 128, 256],
-    "ntasks_per_node": 2,
+    "spack_env": "hpx-lcw-sc24-test",
+    "nnodes": [32],
+    "ntasks_per_node": 1,
     "griddim": 8,
     "max_level": 5,
     "stop_step": 5,
@@ -20,7 +20,8 @@ baseline = {
     "scenario": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
-    "comp_type": "queue",
+    "comp_type_header": "queue",
+    "comp_type_followup": "queue",
     "progress_type": "worker",
     "prg_thread_num": "auto",
     "sendimm": 1,
@@ -36,14 +37,16 @@ baseline = {
 }
 matrix_outside = ["nnodes"]
 matrix_inside = []
-time_limit = 1
+time_limit = 3
 
-configs = [
-    # LCI v.s. MPI
-    {**baseline, "name": "lci", "parcelport": "lci"},
-    {**baseline, "name": "mpi_a", "parcelport": "mpi", "sendimm": 0},
-    {**baseline, "name": "mpi", "parcelport": "mpi"},
+configs1 = [
+    # # # LCI v.s. MPI
+    # {**baseline, "name": "lci", "nnodes": [256, 512], "parcelport": "lci"},
+    {**baseline, "name": "lci", "nnodes": [128], "parcelport": "lci", "ntasks_per_node": 4},
+    {**baseline, "name": "lci", "nnodes": [32], "parcelport": "lci", "ntasks_per_node": 16},
 ]
+
+configs = configs1
 
 if __name__ == "__main__":
     n = 1
@@ -55,4 +58,4 @@ if __name__ == "__main__":
     os.environ["CURRENT_SCRIPT_PATH"] = os.path.dirname(os.path.realpath(__file__))
 
     for i in range(n):
-        submit_jobs(configs, matrix_outside, matrix_inside, time=time_limit, extra_args=["--qos=unlim"])
+        submit_jobs(configs, matrix_outside, matrix_inside, time=time_limit)

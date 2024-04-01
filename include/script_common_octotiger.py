@@ -47,6 +47,13 @@ def get_octotiger_cmd(config):
     args = [
         "--disable_output=on",
         "--amr_boundary_kernel_type=AMR_OPTIMIZED",
+        "--optimize_local_communication=1",
+        "--hpx:ini=hpx.parcel.mpi.zero_copy_optimization=0",
+        "--hpx:ini=hpx.parcel.lci.zero_copy_optimization=0",
+        "--print_times_per_timestep=1",
+        # "--hpx:print-counter=/octotiger*/compute/gpu*kokkos*",
+        # "--hpx:print-counter=/arithmetics/add@/octotiger*/compute/gpu/hydro_kokkos",
+        # "--hpx:print-counter=/arithmetics/add@/octotiger*/compute/gpu/hydro_kokkos_aggregated",
     ]
 
     if config["scenario"] == "rs":
@@ -79,13 +86,13 @@ def get_octotiger_cmd(config):
         args += [
             f"--number_gpus={ngpus_to_use}",
             "--executors_per_gpu=128",
-            "--max_gpu_executor_queue_length=1",
             "--monopole_host_kernel_type=DEVICE_ONLY",
             "--multipole_host_kernel_type=DEVICE_ONLY",
             "--hydro_host_kernel_type=DEVICE_ONLY",
-            "--monopole_device_kernel_type=CUDA",
-            "--multipole_device_kernel_type=CUDA",
-            "--hydro_device_kernel_type=CUDA"
+            "--monopole_device_kernel_type=KOKKOS_CUDA",
+            "--multipole_device_kernel_type=KOKKOS_CUDA",
+            "--hydro_device_kernel_type=KOKKOS_CUDA",
+            "--max_kernels_fused=4",
         ]
 
     args = append_config_if_exist(args, "--stop_step={}", config, "stop_step")

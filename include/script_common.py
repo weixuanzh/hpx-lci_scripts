@@ -33,12 +33,21 @@ def mv(source, destination):
 
 def mkdir_s(dir):
     if os.path.exists(dir):
-        prompt = "{} directory exists. Are you sure to remove it | continue with it | or abort? [r|c|A]".format(dir)
+        file_str = ""
+        for (root, dirs, files) in os.walk(dir):
+            for file in files:
+                file_str += os.path.join(root, file) + "\n"
+        prompt = (("{} directory exists with the following files:\n\n {}\n"
+                  "Are you sure to remove it | continue with it | or abort? [r|c|A]")
+                  .format(dir, file_str))
         print(prompt)
         x = input()
         if x == "r":
             print("Remove {}".format(dir))
-            rm(dir)
+            trash_dir = dir + ".trash"
+            if os.path.exists(trash_dir):
+                rm(trash_dir)
+            mv(dir, trash_dir)
         elif x == "c":
             print("Continue with previous work")
         else:

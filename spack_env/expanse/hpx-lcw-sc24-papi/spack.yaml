@@ -5,15 +5,20 @@
 spack:
   # add package specs to the `specs` list
   specs:
-  - octotiger@master 
-    ^hpx+lci_pp_log+lci_pp_pcounter networking=lci,lcw,mpi 
-    ^openmpi@4.1.5 fabrics=ucx schedulers=slurm +pmi 
-    ^ ucx@1.14.0 
-    ^ lci+debug+pcounter+examples
+  - hpx-bench@master%gcc ^hpx networking=lci,lcw,mpi max_cpu_count=128
+    ^lci+examples+tests+benchmarks+papi
+    ^openmpi@4.1.5 fabrics=ucx schedulers=slurm +pmi
+    ^ucx+verbs+rc+ud+mlx5_dv+ib_hw_tm+dc+thread_multiple+knem+cma+xpmem+rdmacm
+    ^papi@7.0.0
+  - octotiger@master
   view: true
   concretizer:
     unify: true
+    reuse: false
   develop:
+    hpx_bench:
+      path: ../../../../hpx_bench
+      spec: hpx-bench@=master
     hpx:
       path: ../../../../hpx-lcw
       spec: hpx@=master

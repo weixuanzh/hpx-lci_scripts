@@ -11,7 +11,7 @@ import numpy as np
 import re
 import math
 
-job_name = "20240323-delta"
+job_name = "20240331-delta"
 input_path = "data/"
 output_path = "draw/"
 
@@ -179,17 +179,17 @@ def batch(df):
          dirname=dirname, filename="flood-16kb", base="lci", smaller_is_better=False, with_error=True,
          x_label="Thread Number", y_label="Message Rate (K/s)")
 
-    # nbytes
-    df1_tmp = df[df.apply(lambda row:
-                          row["nchains"] == 1024 and
-                          row["intensity"] == 0 and
-                          row["name"] in ["mpi", "lci", "mpi_a"] and
-                          row["pingpong_config_name"] == "nbytes",
-                          axis=1)]
-    df1 = df1_tmp.copy()
-    plot(df1, "nbytes", "latency(us)", "name", None,
-         dirname=dirname, filename="nbytes", base="lci", smaller_is_better=True, with_error=True,
-         x_label="nbytes", y_label="Latency (us)")
+    # # nbytes
+    # df1_tmp = df[df.apply(lambda row:
+    #                       row["nchains"] == 1024 and
+    #                       row["intensity"] == 0 and
+    #                       row["name"] in ["mpi", "lci", "mpi_a"] and
+    #                       row["pingpong_config_name"] == "nbytes",
+    #                       axis=1)]
+    # df1 = df1_tmp.copy()
+    # plot(df1, "nbytes", "latency(us)", "name", None,
+    #      dirname=dirname, filename="nbytes", base="lci", smaller_is_better=True, with_error=True,
+    #      x_label="nbytes", y_label="Latency (us)")
 
     # nchains
     df1_tmp = df[df.apply(lambda row:
@@ -214,17 +214,17 @@ def batch(df):
          dirname=dirname, filename="nchains-16kb", base="lci", smaller_is_better=True, with_error=True,
          x_label="nchains", y_label="Latency (us)")
 
-    # computation
-    df1_tmp = df[df.apply(lambda row:
-                          row["nbytes"] == 16384 and
-                          row["nchains"] == 1024 and
-                          row["name"] in ["mpi", "lci", "mpi_a"] and
-                          row["pingpong_config_name"] == "comp",
-                          axis=1)]
-    df1 = df1_tmp.copy()
-    plot(df1, "task_comp_time", "efficiency", "name", None,
-         dirname=dirname, filename="comp_efficiency", base="lci", smaller_is_better=False, with_error=True,
-         x_label="Computation(us)", y_label="Efficiency", zero_x_is=1)
+    # # computation
+    # df1_tmp = df[df.apply(lambda row:
+    #                       row["nbytes"] == 16384 and
+    #                       row["nchains"] == 1024 and
+    #                       row["name"] in ["mpi", "lci", "mpi_a"] and
+    #                       row["pingpong_config_name"] == "comp",
+    #                       axis=1)]
+    # df1 = df1_tmp.copy()
+    # plot(df1, "task_comp_time", "efficiency", "name", None,
+    #      dirname=dirname, filename="comp_efficiency", base="lci", smaller_is_better=False, with_error=True,
+    #      x_label="Computation(us)", y_label="Efficiency", zero_x_is=1)
 
     ## bars
     # df["nthreads"] = df.apply(lambda row: 128 if pd.isna(row["nthreads"]) else row["nthreads"], axis=1)
@@ -276,17 +276,17 @@ def batch(df):
          dirname=dirname, filename="nchains-16kb",
          x_label="nchains", y_label="Latency (us)")
 
-    # computation
-    df1_tmp = df[df.apply(lambda row:
-                          row["nbytes"] == 16384 and
-                          row["nchains"] == 1024 and
-                          row["task_comp_time"] == 1000 and
-                          row["pingpong_config_name"] == "comp",
-                          axis=1)]
-    df1 = df1_tmp.copy()
-    plot_bars(df1, "name", "efficiency",  None,
-         dirname=dirname, filename="comp_efficiency",
-         x_label="Computation(us)", y_label="Efficiency")
+    # # computation
+    # df1_tmp = df[df.apply(lambda row:
+    #                       row["nbytes"] == 16384 and
+    #                       row["nchains"] == 1024 and
+    #                       row["task_comp_time"] == 1000 and
+    #                       row["pingpong_config_name"] == "comp",
+    #                       axis=1)]
+    # df1 = df1_tmp.copy()
+    # plot_bars(df1, "name", "efficiency",  None,
+    #      dirname=dirname, filename="comp_efficiency",
+    #      x_label="Computation(us)", y_label="Efficiency")
 
 if __name__ == "__main__":
     df = pd.read_csv(os.path.join(input_path, job_name + ".csv"))

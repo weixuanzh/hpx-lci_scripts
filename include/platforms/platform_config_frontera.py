@@ -12,6 +12,8 @@ class FronteraConfig(PlatformConfigBase):
     account = "CCR23056"
     scenarios_path = {
         "rs": "%root%/octotiger/data",
+        "dwd-l10-close_to_merger": "/work2/07620/tg869200/frontera/octotiger/q07_l10/close_to_merger",
+        "dwd-l10-close_to_merger-workspace": "/work2/07620/tg869200/frontera/octotiger/q07_l10/close_to_merger-workspace"
     }
 
     def partition(self, config):
@@ -31,10 +33,7 @@ class FronteraConfig(PlatformConfigBase):
             return "prod"
 
     def get_srun_args(self, config):
-        if "nnodes" in config and config["nnodes"] > 256:
-            return ["srun"]
-        else:
-            return ["srun", "--mpi=pmi2"]
+        return ["srun", "--mpi=pmi2"]
 
     def custom_env(self, config):
         return {"I_MPI_PMI_VALUE_LENGTH_MAX": "512"}

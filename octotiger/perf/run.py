@@ -15,8 +15,8 @@ baseline = {
     "nnodes": [32],
     "ntasks_per_node": 1,
     "griddim": 8,
-    "max_level": 4,
-    "stop_step": 20,
+    "max_level": 5,
+    "stop_step": 5,
     "zc_threshold": 8192,
     "scenario": "rs",
     "parcelport": "lci",
@@ -32,8 +32,9 @@ baseline = {
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
-    "ndevices": 1,
+    "ndevices": 2,
     "ncomps": 1,
+    "perf": "record"
 }
 time_limit=3
 
@@ -41,10 +42,18 @@ if platformConfig.name == "perlmutter":
     baseline["ngpus"] = 1
 if platformConfig.name == "expanse":
     baseline["spack_env"] = "hpx-lcw-sc24"
+    baseline["ntasks_per_node"] = 2
+    baseline["nnodes"] = [2]
+if platformConfig.name == "frontera":
+    baseline["spack_env"] = "hpx-lcw-sc24"
+    baseline["nnodes"] = [32]
 
 configs = [
-    {**baseline, "name": "lci", "parcelport": "lci"},
-    {**baseline, "name": "lci_mutex", "parcelport": "lci", "cq_type": "array_mutex"},
+    # {**baseline, "name": "mpi", "parcelport": "mpi"},
+    {**baseline, "name": "mpi_a", "parcelport": "mpi", "sendimm": 0},
+    # {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "lci_pin", "progress_type": "pin"},
+    # {**baseline, "name": "lci_mutex", "parcelport": "lci", "cq_type": "array_mutex"},
     # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
     # {**baseline, "name": "lcw", "parcelport": "lcw", "sendimm": 0},
     # {**baseline, "name": "lcw_i", "parcelport": "lcw"},

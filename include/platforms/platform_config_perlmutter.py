@@ -26,9 +26,9 @@ class PerlmutterConfig(PlatformConfigBase):
     def qos(self, config):
         nnodes = config["nnodes"]
         if nnodes <= 8:
-            ret, _ = pshell.run(["squeue", "-u", os.environ["USER"]], to_print=False)
+            ret, _ = pshell.run(["sqs"], to_print=False)
             count = ret.count("debug")
-            if count <= 5:
+            if count < 5:
                 return "debug"
         return "regular"
 

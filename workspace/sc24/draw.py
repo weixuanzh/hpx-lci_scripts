@@ -7,11 +7,11 @@ import itertools
 import math
 import re
 
-job_name = "20240323-brief"
+job_name = "20240330-brief"
 job_name_dict = {
     "Expanse": {
-        "mbench": "../../hpx_pingpong/sc24/data/20240318-expanse.csv",
-        "bench": "../../octotiger/sc24/data/20240320-expanse.csv"
+        "mbench": "../../hpx_pingpong/sc24/data/20240330-expanse.csv",
+        "bench": "../../octotiger/sc24/data/20240330-expanse.csv"
     },
     "Frontera": {
         "mbench": "../../hpx_pingpong/sc24/data/20240319-frontera.csv",
@@ -427,15 +427,15 @@ def batch(dfs):
                                       row["name"] in ["mpi", "lci", "mpi_a"] and
                                       row["pingpong_config_name"] == "nbytes",)
 
-    draw_line([df[0] for df in dfs], "task_comp_time", "efficiency", "name",
-              dirname="mpi_vs_lci", filename="efficiency",
-              base="lci", smaller_is_better=False, with_error=True, sort_key=sort_key,
-              x_label="Task Granularity", y_label="Efficiency",
-              xscale="log", yscale="log",
-              criteria_fn=lambda row: row["nbytes"] == 16384 and
-                                      row["nchains"] == 1024 and
-                                      row["name"] in ["mpi", "lci", "mpi_a"] and
-                                      row["pingpong_config_name"] == "comp",)
+    # draw_line([df[0] for df in dfs], "task_comp_time", "efficiency", "name",
+    #           dirname="mpi_vs_lci", filename="efficiency",
+    #           base="lci", smaller_is_better=False, with_error=True, sort_key=sort_key,
+    #           x_label="Task Granularity", y_label="Efficiency",
+    #           xscale="log", yscale="log",
+    #           criteria_fn=lambda row: row["nbytes"] == 16384 and
+    #                                   row["nchains"] == 1024 and
+    #                                   row["name"] in ["mpi", "lci", "mpi_a"] and
+    #                                   row["pingpong_config_name"] == "comp",)
 
     draw_line([df[1] for df in dfs], "nnodes", "Total(s)", "name",
               dirname="mpi_vs_lci", filename="brief",
@@ -443,9 +443,9 @@ def batch(dfs):
               x_label="Node Count", y_label="Time to Solution (s)",
               xscale="log", yscale="log",
               criteria_fn=lambda row: row["name"] in ["lci", "mpi_a", "mpi"] and
-                                      row["max_level"] == 5)
+                                      row["max_level"] == 5 and row["nnodes"] <= 256)
 
-    draw_diff(dfs, "lci",
+    draw_diff(dfs, "lci_2queue",
               ["lci_sendrecv",
                "lci_header_sync_single_nolock",
                "lci_header_sync_single", ],
@@ -454,14 +454,16 @@ def batch(dfs):
               legend_loc="upper right", legend_fn=lambda x: {"lci_sendrecv": "sendrecv",
                                                              "lci_header_sync_single_nolock": "sync",
                                                              "lci_header_sync_single": "sync_lock"}[x],
-              criteria_fn=lambda row: row["ndevices"] == 2)
-    draw_diff(dfs, "lci",
+              criteria_fn=lambda row: row["ndevices"] == 2 and row["ncomps"] == 2)
+    draw_diff(dfs, "lci_sendcrecv",
               ["lci_followup_sync",
-               "lci_followup_sync_poll", ],
+               "lci_followup_queue_mutex"],
               "followup", dirname="config", title="Managing a large number of pending operations",
-              label_mask=[0, 1, 0, 1, 0, 1],
-              legend_loc="upper left", legend_fn=lambda x: {"lci_followup_sync": "sync",
-                                                            "lci_followup_sync_poll": "sync_poll"}[x])
+              label_mask=[1, 1, 1, 1, 0, 1],
+              legend_loc="upper left", legend_fn=lambda x: {"lci_sendcrecv": "sendcrecv",
+                                                            "lci_followup_sync": "sync",
+                                                            "lci_followup_sync_poll": "sync_poll",
+                                                            "lci_followup_queue_mutex": "queue_mutex"}[x])
 
     # draw_diff(dfs, "lci",
     #           ["lci_followup_queue_mutex"],
@@ -469,7 +471,7 @@ def batch(dfs):
     #             label_mask=[1, 1, 1, 1, 1, 1],
     #             legend_loc="upper left", legend_fn=lambda x: {"lci_followup_queue_mutex": "queue_lock"}[x],)
 
-    draw_diff(dfs, "lci",
+    draw_diff(dfs, "lci_mt_d2_c1",
               ["lci_pin", "lci_pthread", "lci_pthread_worker"],
               "progress", dirname="config", title="Different ways of driving the progress engine",
               label_mask=[1, 1, 1, 1, 0, 1],
@@ -479,23 +481,23 @@ def batch(dfs):
 
     draw_line([df[0] for df in dfs], "ndevices", "msg_rate(K/s)", "ndevices_tag",
               dirname="config", filename="ndevices", with_error=True,
-              xscale="log", yscale="log", sort_key=lambda x: {"base": 0, "lock":1}[x["label"]],
+              xscale="log", yscale="log", sort_key=lambda x: {"base": 0, "try-lock": 1, "lock": 2}[x["label"]],
               x_label="Device Number", y_label="Message Rate (K/s)",
               criteria_fn=lambda row: row["nbytes"] == 8 and
                                       row["nchains"] == 1000000 and
                                       row["nsteps"] == 1 and
                                       row["pingpong_config_name"] == "flood" and
-                                      row["ndevices_tag"] in ["base", "lock"])
+                                      row["ndevices_tag"] in ["base", "try-lock", "lock"])
 
     draw_line([df[1] for df in dfs], "ndevices", "Total(s)", "ndevices_tag",
               dirname="config", filename="ndevices-app", with_error=True,
-              xscale="log", yscale="log", sort_key=lambda x: {"base": 0, "lock":1}[x["label"]],
+              xscale="log", yscale="log", sort_key=lambda x: {"base": 0, "try-lock": 1, "lock": 2}[x["label"]],
               x_label="Device Number", y_label="Time to Solution (s)",
-              criteria_fn=lambda row: row["ndevices_tag"] in ["base", "lock"] and
+              criteria_fn=lambda row: row["ndevices_tag"] in ["base", "try-lock", "lock"] and
                                       row["max_level"] == 5)
 
     draw_diff(dfs,
-              "lci", ["lci_a", "mpi", "mpi_a"],
+              "lci_mt_d2_c1", ["lci_a", "mpi", "mpi_a"],
               "aggregation", dirname="config",
               label_mask=[1, 1, 1, 1, 0, 1],
               title="Aggregation")
@@ -514,6 +516,8 @@ def preprocess_df(df):
         if re.match("lci_mt_d\d+_c\d+", x["name"]):
             return "base"
         elif re.match("lci_global_d\d+", x["name"]):
+            return "try-lock"
+        elif re.match("lci_global_b_d\d+", x["name"]):
             return "lock"
         else:
             return None

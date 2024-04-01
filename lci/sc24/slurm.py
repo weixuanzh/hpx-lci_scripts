@@ -22,6 +22,8 @@ if type(config) is list:
     configs = config
 else:
     configs = [config]
+pshell.run("export UCX_TLS=rc,self")
+pshell.run("export UCX_IB_REG_METHODS=direct")
 
 start_time = time.time()
 for config in configs:

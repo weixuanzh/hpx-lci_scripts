@@ -22,6 +22,13 @@ if type(config) is list:
     configs = config
 else:
     configs = [config]
+pshell.run("export UCX_TLS=rc,self")
+# pshell.run("export UCX_IB_REG_METHODS=direct")
+pshell.run("export UCX_RNDV_THRESH=12288")
+pshell.run("export UCX_MAX_RNDV_RAILS=1")
+pshell.run("export UCX_BCOPY_THRESH=32")
+pshell.run("export UCX_NET_DEVICES=mlx5_0:1")
+pshell.run("export TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=1677721600")
 
 def get_hpx_pingpong_args(config):
     args = []
@@ -35,13 +42,17 @@ def get_hpx_pingpong_args(config):
     return ["pingpong_performance2"] + args + get_hpx_args(config)
 
 start_time = time.time()
-for config in configs:
-    print("Config: " + json.dumps(config))
-    pshell.update_env(get_hpx_environ_setting(config))
+for i in range(5):
+    for config in configs:
+        print("Config: " + json.dumps(config))
+        pshell.update_env(get_hpx_environ_setting(config))
 
-    cmd = (get_platform_config("get_srun_args", config) +
-           get_platform_config("get_numactl_args", config) +
-           get_hpx_pingpong_args(config))
-    pshell.run(cmd)
+        cmd = (get_platform_config("get_srun_args", config) +
+               get_platform_config("get_numactl_args", config) +
+               get_hpx_pingpong_args(config))
+        if i == 0:
+            # warmup
+            pshell.run(cmd, to_print=False)
+        pshell.run(cmd)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

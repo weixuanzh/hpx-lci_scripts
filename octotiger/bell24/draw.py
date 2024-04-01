@@ -10,7 +10,7 @@ from draw_bokeh import plot_bokeh
 import numpy as np
 import math
 
-job_name = "20240331-delta"
+job_name = "20240329-perlmutter"
 input_path = "data/"
 output_path = "draw/"
 all_labels = ["nnodes", "scenario", "job", "parcelport", "nthreads", "max_level", "tag", "Total(s)"]
@@ -99,7 +99,7 @@ def plot(df, x_key, y_key, tag_key, title,
     if ax2:
         lines1, labels1 = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper left', bbox_to_anchor=(0, 1.2), ncol=3, fancybox=True)
+        ax2.legend(lines1 + lines2, labels1 + labels2, loc='best', ncol=1, fancybox=True)
     else:
         ax.legend()
     ax.tick_params(axis='y', which='both')
@@ -119,63 +119,37 @@ def plot(df, x_key, y_key, tag_key, title,
     with open(output_json_name, 'w') as outfile:
         json.dump({"Time": lines, "Speedup": speedup_lines}, outfile)
 
-def plot_bars(df, x_key, y_key, title,
-              x_label=None, y_label=None,
-              dirname=None, filename=None):
-    if x_label is None:
-        x_label = x_key
-    if y_label is None:
-        y_label = y_key
-
-    df = df.sort_values(by=[x_key])
-    data = parse_simple(df, x_key, y_key)
-
-    fig, ax = plt.subplots()
-    bar = ax.barh(data["x"], data["y"], xerr=data["error"], label=y_label)
-    ax.barh(data["x"], np.array(data["y"]) * 0.08, left=data["y"], color="white")
-    for i, rect in enumerate(bar):
-        text = f'{data["y"][i]:.2f}'
-        ax.text(data["y"][i], rect.get_y() + rect.get_height() / 2.0,
-                text, ha='left', va='center')
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-
-    if filename is None:
-        filename = title
-
-    if not os.path.exists(dirname):
-        os.mkdir(dirname)
-    output_png_name = os.path.join(dirname, "{}-bar.png".format(filename))
-    fig.savefig(output_png_name, bbox_inches='tight')
-
 def batch(df):
     dirname = os.path.join(output_path, job_name)
 
-    def name_fn(row):
-        if row["parcelport"] == "mpi" and row["sendimm"] == 0:
-            return "mpi_a"
-        elif row["parcelport"] == "mpi" and row["sendimm"] == 1:
-            return "mpi"
-        else:
-            return row["name"]
 
-    df["name"] = df.apply(name_fn, axis=1)
-    # df["tag"] = df.apply(lambda row: "{}-{}".format(row["scenario"], row["parcelport"]), axis=1)
+    def calculate_flops(row):
+        dict = {
+            "dwd-l10-beginning": 5.27503e11,
+            "dwd-l10-close_to_merger": 1.68309e12,
+            "dwd-l11-beginning": 1.10725e12,
+            "dwd-l11-close_to_merger": 1.74806e13,
+            "dwd-l12-beginning": 9.04417e12,
+            "dwd-l12-close_to_merger": 1.07915e14,
+        }
+        return dict[row["scenario"]] / row["Total(s)"]
+    df["tag"] = df.apply(lambda row: "{}-{}".format(row["scenario"], row["parcelport"]), axis=1)
+    df["flops"] = df.apply(calculate_flops, axis=1)
 
     df1_tmp = df[df.apply(lambda row:
                           row["nnodes"] >= 2 and
-                          row["name"] in ["mpi", "mpi_a", "lci"],
+                          row["nnodes"] <= 256,
                           axis=1)]
     df1 = df1_tmp.copy()
-    plot(df1, "nnodes", "Total(s)", "name", job_name, "MPI parcelport v.s. LCI parcelport",
-         dirname=dirname, filename="mpi_vs_lci", base="lci", with_error=False)
-
+    plot(df1, "nnodes", "Total(s)", "tag", "MPI parcelport v.s. LCI parcelport",
+         dirname=dirname, filename="mpi_vs_lci_time", base="lci", with_error=False)
     df1_tmp = df[df.apply(lambda row:
-                          row["nnodes"] ==32,
+                          row["nnodes"] >= 2 and
+                          row["nnodes"] <= 256,
                           axis=1)]
     df1 = df1_tmp.copy()
-    plot_bars(df1, "name", "Total(s)", job_name, "LCI parcelport configs",
-         dirname=dirname, filename="mpi_vs_lci")
+    plot(df1, "nnodes", "flops", "tag", "MPI parcelport v.s. LCI parcelport",
+         dirname=dirname, filename="mpi_vs_lci_flops", base="lci", with_error=False)
 
 
 if __name__ == "__main__":

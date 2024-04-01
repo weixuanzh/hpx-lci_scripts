@@ -58,4 +58,8 @@ def get_hpx_args(config):
                                      "mbuffer_alloc_max_retry", ["lci"])
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.bg_work_when_send={}", config,
                                      "bg_work_when_send", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.bg_work_max_count={}", config,
+                                     "bg_work_max_count", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.enable_sendmc={}", config,
+                                     "enable_sendmc", ["lci"])
     return args

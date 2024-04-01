@@ -11,7 +11,7 @@ spack:
   specs:
   - octotiger@master%gcc 
     ^hpx networking=lci,lcw,mpi max_cpu_count=128
-    ^lci+examples+tests+benchmarks
+    ^lci+examples+tests+benchmarks enable-pm=mpi
     ^intel-oneapi-mpi~envmods
   - hpx-bench
   view: true

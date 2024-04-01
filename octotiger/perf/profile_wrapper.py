@@ -27,10 +27,16 @@ else:
 assert len(configs) == 1
 
 # pshell.run("export LCT_LOG_LEVEL=info")
-pshell.run("export LCI_LOG_LEVEL=info")
+# pshell.run("export LCI_LOG_LEVEL=info")
 # pshell.run("export LCT_PMI_BACKEND=pmi1")
 # pshell.run("ulimit -c unlimited")
 # pshell.run("env | grep PMI")
+pshell.run("export UCX_TLS=rc,self")
+pshell.run("export UCX_IB_REG_METHODS=direct")
+pshell.run("export UCX_RNDV_THRESH=12288")
+pshell.run("export UCX_MAX_RNDV_RAILS=1")
+pshell.run("export UCX_BCOPY_THRESH=32")
+pshell.run("export UCX_NET_DEVICES=mlx5_0:1")
 
 for config in configs:
     pshell.update_env(get_octotiger_environ_setting(config))
@@ -41,8 +47,16 @@ for config in configs:
     pshell.run(f"cd {scenarios_path}")
 
     perf_output = f'perf.data.{config["name"]}.{os.environ["SLURM_JOB_ID"]}.{os.environ["SLURM_PROCID"]}'
-    cmd = (f"perf record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ") +
+    perf_args = f"record --freq=100 --call-graph dwarf -q -o {perf_output}".split(" ")
+    if "perf" in config and config["perf"] == "stat":
+        perf_args = ["stat", "-e",
+                     "faults,cache-misses,"
+                     "ls_refills_from_sys.ls_mabresp_rmt_cache,"
+                     "ls_refills_from_sys.ls_mabresp_rmt_dram"]
+
+    cmd = (["perf"] + perf_args +
            get_platform_config("get_numactl_args", config) +
            get_octotiger_cmd(config))
     pshell.run(cmd)
-    os.rename(f"{scenarios_path}/{perf_output}", f"{current_path}/run/{perf_output}")
+    if "perf" not in config or config["perf"] == "record":
+        os.rename(f"{scenarios_path}/{perf_output}", f"{current_path}/run/{perf_output}")

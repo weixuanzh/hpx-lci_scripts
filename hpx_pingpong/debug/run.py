@@ -38,7 +38,7 @@ if platformConfig.name == "rostam":
     # baseline["spack_env"] = "hpx-lcw-mpich-master-debug"
     baseline["spack_env"] = "hpx-lcw-openmpi"
 if platformConfig.name == "expanse":
-    baseline["spack_env"] = "hpx-lcw"
+    baseline["spack_env"] = "hpx-lcw-sc24"
 if platformConfig.name == "frontera":
     baseline["spack_env"] = "hpx-lcw-sc24"
 if platformConfig.name == "delta":
@@ -49,13 +49,17 @@ if platformConfig.name == "delta":
 
 matrix_outside = ["nnodes"]
 matrix_inside = ["nbytes", "nchains", "nsteps", "intensity", "nthreads", "task_comp_time"]
-time_limit = 10
+time_limit = 1
 
 configs = [
     # baseline,
     # {**baseline, "name": "mpi", "parcelport": "mpi"},
-    # {**baseline, "name": "lci", "parcelport": "lci"},
-    {**baseline, "name": "lci_header_sync_single_nolock_poll", "ncomps": 2, "protocol": "sendrecv", "comp_type_header": "sync_single_nolock", "progress_type": "poll"},
+    {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "lci_sendrecv", "protocol": "sendrecv"},
+    {**baseline, "name": "lci_sendcrecv", "protocol": "sendrecv", "enable_sendmc": 1},
+    {**baseline, "name": "lci_followup_sync", "comp_type_followup": "sync", "enable_sendmc": 1},
+    {**baseline, "name": "lci_followup_sync_poll", "comp_type_followup": "sync", "progress_type": "poll", "enable_sendmc": 1},
+    # {**baseline, "name": "lci_header_sync_single_nolock_poll", "ncomps": 2, "protocol": "sendrecv", "comp_type_header": "sync_single_nolock", "progress_type": "poll"},
     # {**baseline, "name": "lci_bidir", "parcelport": "lci", "is_single_source": "0"},
     # {**baseline, "name": "lci", "parcelport": "lci", "protocol": "sendrecv"},
     # {**baseline, "name": "lci_sync", "parcelport": "lci", "protocol": "sendrecv", "comp_type_header": "sync"},
@@ -84,9 +88,13 @@ configs = [
 
 pingpong_configs2 = [
     # {"name": "flood", "nchains": [1000000], "nsteps": [1], "is_single_source": 1, "nbytes": [8], "batch_size": 100},
+    {"pingpong_name": "flood", "nchains": [100000], "nsteps": [1], "is_single_source": 1, "nbytes": [16384], "batch_size": 10},
+    {"pingpong_name": "flood", "nchains": [100000], "nsteps": [1], "is_single_source": 1, "nbytes": [16384], "batch_size": 10},
+    {"pingpong_name": "flood", "nchains": [100000], "nsteps": [1], "is_single_source": 1, "nbytes": [16384], "batch_size": 10},
+    # {"name": "flood", "nchains": [100000], "nsteps": [1], "is_single_source": 1, "nbytes": [16384], "batch_size": 10},
     # {"name": "flood", "nchains": [100000], "nsteps": [1], "is_single_source": 1, "nbytes": [16384], "batch_size": 10},
     # {"name": "nchains", "nbytes": [8, 16384], "nchains": [1024]},
-    {"name": "comp", "nbytes": [16384], "task_comp_time": [1000]},
+    # {"name": "comp", "nbytes": [16384], "task_comp_time": [1000]},
 ]
 update_inside = pingpong_configs2
 # flat_configs = flatten_configs(configs, matrix_outside, matrix_inside, update_inside=update_inside)

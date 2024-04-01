@@ -23,20 +23,15 @@ if type(config) is list:
 else:
     configs = [config]
 
-# pshell.run("export FI_CXI_RX_MATCH_MODE=software")
-# pshell.run("export FI_CXI_DEFAULT_CQ_SIZE=263404")
-# pshell.run("export FI_CXI_OFLOW_BUF_SIZE=12582912")
-# pshell.run("export FI_CXI_CQ_FILL_PERCENT=20")
-# pshell.run("export LCI_LOG_LEVEL=info")
-# pshell.run("export LCT_LOG_LEVEL=info")
-# pshell.run("ulimit -c unlimited")
-# pshell.run("export MPIR_CVAR_CH4_NUM_VCIS=10")
-# pshell.run("export UCX_TLS=rc,self")
+pshell.run("export UCX_TLS=rc,self")
+# pshell.run("export UCX_IB_REG_METHODS=direct")
+pshell.run("export UCX_RNDV_THRESH=12288")
+pshell.run("export UCX_MAX_RNDV_RAILS=1")
+pshell.run("export UCX_BCOPY_THRESH=32")
+pshell.run("export UCX_NET_DEVICES=mlx5_0:1")
 
 start_time = time.time()
 for config in configs:
-    if config["progress_type"] == "rp":
-        pshell.run("export LCI_BACKEND_TRY_LOCK_MODE=send")
     print("Config: " + json.dumps(config))
     pshell.update_env(get_octotiger_environ_setting(config))
 

@@ -12,6 +12,7 @@ class RostamConfig(PlatformConfigBase):
     partition = "medusa"
     scenarios_path = {
         "rs": "%root%/octotiger/data",
+        "dwd-l10-close_to_merger": "/home/jiakun/data/octotiger/q07_l10/close_to_merger",
     }
 
     def get_srun_args(self, config):

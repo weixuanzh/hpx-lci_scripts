@@ -23,17 +23,17 @@ configs = [
                                          "--max-msg-size=65536",
                                          "--nthreads={}".format(nthreads),
                                          "--thread-pin=1"]},
-    {**baseline, "name": "lci", "args": ["lci_lcitb_pt2pt",
-                                         "--op=2m",
-                                         "--max-msg-size=8192",
-                                         "--nthreads={}".format(nthreads),
-                                         "--thread-pin=1"]},
-    {**baseline, "name": "lci", "args": ["lci_lcitb_pt2pt",
-                                         "--op=2l",
-                                         "--min-msg-size=16384",
-                                         "--max-msg-size=65536",
-                                         "--nthreads={}".format(nthreads),
-                                         "--thread-pin=1"]}
+    # {**baseline, "name": "lci", "args": ["lci_lcitb_pt2pt",
+    #                                      "--op=2m",
+    #                                      "--max-msg-size=8192",
+    #                                      "--nthreads={}".format(nthreads),
+    #                                      "--thread-pin=1"]},
+    # {**baseline, "name": "lci", "args": ["lci_lcitb_pt2pt",
+    #                                      "--op=2l",
+    #                                      "--min-msg-size=16384",
+    #                                      "--max-msg-size=65536",
+    #                                      "--nthreads={}".format(nthreads),
+    #                                      "--thread-pin=1"]}
 ]
 
 if __name__ == "__main__":
