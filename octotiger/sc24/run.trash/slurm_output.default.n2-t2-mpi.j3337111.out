@@ -1,0 +1,401 @@
+[{"name": "mpi", "spack_env": "hpx-lcw-sc24", "nnodes": 2, "ntasks_per_node": 2, "griddim": 8, "max_level": 5, "stop_step": 5, "zc_threshold": 8192, "scenario": "rs", "parcelport": "mpi", "protocol": "putsendrecv", "comp_type_header": "queue", "comp_type_followup": "queue", "progress_type": "worker", "prg_thread_num": "auto", "sendimm": 1, "backlog_queue": 0, "prepost_recv_num": 1, "zero_copy_recv": 1, "in_buffer_assembly": 1, "match_table_type": "hashqueue", "cq_type": "array_atomic_faa", "reg_mem": 1, "ndevices": 2, "ncomps": 1}]
+Execute: export UCX_TLS=rc,self
+Execute: export UCX_RNDV_THRESH=12288
+Execute: export UCX_MAX_RNDV_RAILS=1
+Execute: export UCX_BCOPY_THRESH=32
+Execute: export UCX_NET_DEVICES=mlx5_0:1
+Config: {"name": "mpi", "spack_env": "hpx-lcw-sc24", "nnodes": 2, "ntasks_per_node": 2, "griddim": 8, "max_level": 5, "stop_step": 5, "zc_threshold": 8192, "scenario": "rs", "parcelport": "mpi", "protocol": "putsendrecv", "comp_type_header": "queue", "comp_type_followup": "queue", "progress_type": "worker", "prg_thread_num": "auto", "sendimm": 1, "backlog_queue": 0, "prepost_recv_num": 1, "zero_copy_recv": 1, "in_buffer_assembly": 1, "match_table_type": "hashqueue", "cq_type": "array_atomic_faa", "reg_mem": 1, "ndevices": 2, "ncomps": 1}
+Execute: export LCI_SERVER_MAX_SENDS=64
+Execute: export LCI_SERVER_MAX_RECVS=4096
+Execute: export LCI_SERVER_NUM_PKTS=65536
+Execute: export LCI_SERVER_MAX_CQES=65536
+Execute: export LCI_PACKET_SIZE=12288
+Execute: export FI_CXI_RX_MATCH_MODE=software
+Execute: export LCI_MT_BACKEND=hashqueue
+Execute: export LCI_CQ_TYPE=array_atomic_faa
+Execute: export LCI_USE_DREG=0
+Execute: export LCI_ENABLE_PRG_NET_ENDPOINT=0
+Execute: cd /u/jiakuny/workspace/hpx-lci_scripts/octotiger/data
+Execute: srun -u octotiger --disable_output=on --amr_boundary_kernel_type=AMR_OPTIMIZED --optimize_local_communication=1 --hpx:ini=hpx.parcel.mpi.zero_copy_optimization=0 --hpx:ini=hpx.parcel.lci.zero_copy_optimization=0 --print_times_per_timestep=1 --config_file=rotating_star.ini --max_level=5 --theta=0.34 --correct_am_hydro=0 --monopole_host_kernel_type=LEGACY --multipole_host_kernel_type=LEGACY --hydro_host_kernel_type=LEGACY --monopole_device_kernel_type=OFF --multipole_device_kernel_type=OFF --hydro_device_kernel_type=OFF --stop_step=5 --hpx:ini=hpx.stacks.use_guard_pages=0 --hpx:ini=hpx.parcel.mpi.priority=1000 --hpx:threads=64 --hpx:ini=hpx.parcel.zero_copy_receive_optimization=1 --hpx:ini=hpx.parcel.mpi.zero_copy_serialization_threshold=8192 --hpx:ini=hpx.parcel.mpi.sendimm=1
+Starting main...
+Registering functions ...
+Starting hpx init ...
+Starting main...
+Registering functions ...
+Starting hpx init ...
+Starting main...
+Registering functions ...
+Starting hpx init ...
+Starting main...
+Registering functions ...
+Starting hpx init ...
+
+
+
+
+          ___       _      _____ _                 
+         / _ \  ___| |_ __|_   _(_) __ _  ___ _ __ 
+        | | | |/ __| __/ _ \| | | |/ _` |/ _ \ '__|
+        | |_| | (__| || (_) | | | | (_| |  __/ |   
+         \___/ \___|\__\___/|_| |_|\__, |\___|_|   
+      _                            |___/           
+     (_)
+              _ __..-;''`-
+      O   (`/' ` |  \ \ \ \-.
+       o /'`\ \   |  \ | \|  \
+        /<7' ;  \ \  | ; ||/ `'.
+       /  _.-, `,-\,__| ' ' . `'.
+       `-`  f/ ;       \        \             ___.--,
+           `~-'_.._     |  -~    |     _.---'`__.-( (_.
+        __.--'`_.. '.__.\    '--. \_.-' ,.--'`     `""`
+       ( ,.--'`   ',__ /./;   ;, '.__.'`    __
+       _`) )  .---.__.' / |   |\   \__..--""  """--.,_
+      `---' .'.''-._.-'`_./  /\ '.  \ _.-~~~````~~~-._`-.__.'
+            | |  .' _.-' |  |  \  \  '.               `~---`
+             \ \/ .'     \  \   '. '-._)
+              \/ /        \  \    `=.__`~-.
+              / /\         `) )    / / `"".`\
+        , _.-'.'\ \        / /    ( (     / /
+         `--~`   ) )    .-'.'      '.'.  | (
+                (/`    ( (`          ) )  '-;
+                 `      '-;         (-'
+
+
+
+
+
+    
+GIT COMMIT: e843e9fd0fc055c4e6e243a9c297d5fab2592b9f
+            "unknown"
+
+###########################################################
+Compiled for AVX2 SIMD architectures.
+###########################################################
+
+###########################################################
+
+Running
+Start octotiger
+Start processing options
+Finished executor init and read options
+Finished executor init and read options
+Check number of available GPUs...
+Initialize executors and masks...
+Stencils initialized!
+Initialize problem...
+Check number of available GPUs...
+Initialize executors and masks...
+Stencils initialized!
+Initialize problem...
+Finished initializing options
+Finished initializing options
+Compiled with max nf -DOCTOTIGER_WITH_MAX_NUMBER_FIELDS=15
+Problem initialized!
+Starting to compute ilist...
+Compiled with max nf -DOCTOTIGER_WITH_MAX_NUMBER_FIELDS=15
+Problem initialized!
+Starting to compute ilist...
+Finished processing options
+Finished executor init and read options
+Finished initializing options
+Finished executor init and read options
+Finished initializing options
+Using compiler 11.2.1 20220127 (Red Hat 11.2.1-9)
+atomic_number=
+atomic_mass=
+X=
+Z=
+accretor_refine = 0
+amrbnd_order = 1
+bench = F
+cdisc_detect = T
+cfl = 4.000000e-01
+clight_retard = 1.000000e+01
+config_file = rotating_star.ini
+core_refine = F
+correct_am_grav = T
+correct_am_hydro = F
+code_to_cm = 1.000000e+00
+code_to_g = 1.000000e+00
+code_to_s = 1.000000e+00
+data_dir = ./
+disable_output = T
+driving_rate = 0.000000e+00
+driving_time = 0.000000e+00
+dt_max = 3.333330e-01
+donor_refine = 0
+dual_energy_sw1 = 1.000000e-03
+dual_energy_sw2 = 1.000000e-01
+eblast0 = 1.000000e+00
+eos = IDEAL
+entropy_driving_rate = 0.000000e+00
+entropy_driving_time = 0.000000e+00
+future_wait_time = -1
+grad_rho_refine = -1.000000e+00
+hard_dt = -1.000000e+00
+hydro = T
+inflow_bc = F
+input_file = rotating_star.bin
+min_level = 1
+max_level = 5
+n_species = 5
+ngrids = -1
+omega = 0.000000e+00
+output_dt = 1.000000e-01
+output_filename = 
+problem = ROTATING_STAR
+rad_implicit = T
+radiation = F
+refinement_floor = 1.000000e-03
+reflect_bc = F
+restart_filename = 
+rotating_star_amr = F
+rotating_star_x = 0.000000e+00
+scf_output_frequency = 25
+silo_num_groups = 4
+stop_step = 5
+stop_time = 1.000000e-01
+theta = 3.400000e-01
+unigrid = F
+v1309 = F
+idle_rates = F
+xscale = 1.500000e+00
+number_gpus = 0
+executors_per_gpu = 0
+max_gpu_executor_queue_length = 5
+max_kernels_fused = 1
+amr_boundary_kernel_type = AMR_OPTIMIZED
+root_node_on_device = T
+optimize_local_communication = T
+multipole_device_kernel_type = OFF
+multipole_host_kernel_type = LEGACY
+monopole_device_kernel_type = OFF
+monopole_host_kernel_type = LEGACY
+hydro_device_kernel_type = OFF
+hydro_host_kernel_type = LEGACY
+Normalized constants 222
+1.000000e+00 1.000000e+00 3.871264e+03 1.000000e+00
+A = 1.000000e+00 | B = 1.000000e+00 | G = 1.000000e+00 | kb = 2.069149e-09 | c = 1.160576e+14 | mh = 1.673300e-24 | sigma = 3.289883e+06 | h = 2.565129e-23
+SCF option file "scf.init" not found - using defaults
+Check number of available GPUs...
+Initialize executors and masks...
+Stencils initialized!
+Initialize problem...
+Compiled with max nf -DOCTOTIGER_WITH_MAX_NUMBER_FIELDS=15
+Problem initialized!
+Starting to compute ilist...
+Check number of available GPUs...
+Initialize executors and masks...
+Stencils initialized!
+Initialize problem...
+Compiled with max nf -DOCTOTIGER_WITH_MAX_NUMBER_FIELDS=15
+Problem initialized!
+Starting to compute ilist...
+Finished computing factors
+Finished static_init
+Finished normalizing
+Finished initialization
+ilist initialized!
+ilist initialized!
+Normalized constants 222
+ilist initialized!
+1.000000e+00 1.000000e+00 3.871264e+03 1.000000e+00
+A = 1.000000e+00 | B = 1.000000e+00 | G = 1.000000e+00 | kb = 2.069149e-09 | c = 1.160576e+14 | mh = 1.673300e-24 | sigma = 3.289883e+06 | h = 2.565129e-23
+Finished computing factors
+Finished static_init
+Finished normalizing
+Finished initialization
+Finished computing factors
+Finished static_init
+Finished normalizing
+Finished initialization
+Initializing cell_geometry 3 8 14
+ilist initialized!
+Finished init
+Finished computing factors
+Finished static_init
+Finished normalizing
+Finished initialization
+Reading rotating_star.bin
+Done reading rotating_star.bin
+Omega = 5.155548e-01
+-----------------------------------------------
+checking for refinement
+regridding
+Regridded tree in 0.000005 seconds
+rebalancing 9 nodes with 8 leaves
+Initializing cell_geometry 3 8 14
+Found root
+Starting refinement
+Reading rotating_star.bin
+Done reading rotating_star.bin
+Omega = 5.155548e-01
+Initializing cell_geometry 3 8 14
+Initializing cell_geometry 3 8 14
+Reading rotating_star.bin
+Reading rotating_star.bin
+Rebalanced tree in 0.091202 seconds
+forming tree connections
+Done reading rotating_star.bin
+Omega = 5.155548e-01
+Done reading rotating_star.bin
+Omega = 5.155548e-01
+24 amr boundaries
+Formed tree in 0.027538 seconds
+solving gravity
+regrid done in 0.151786 seconds
+---------------------------------------
+-----------------------------------------------
+checking for refinement
+---------------Created Level 1---------------
+
+regridding
+Regridded tree in 0.013695 seconds
+rebalancing 73 nodes with 64 leaves
+Rebalanced tree in 0.003697 seconds
+forming tree connections
+120 amr boundaries
+Formed tree in 0.015063 seconds
+solving gravity
+regrid done in 0.079255 seconds
+---------------------------------------
+-----------------------------------------------
+checking for refinement
+---------------Created Level 2---------------
+
+regridding
+Regridded tree in 0.012449 seconds
+rebalancing 265 nodes with 232 leaves
+Rebalanced tree in 0.012423 seconds
+forming tree connections
+344 amr boundaries
+Formed tree in 0.013225 seconds
+solving gravity
+---------------Created Level 3---------------
+
+regrid done in 0.107761 seconds
+---------------------------------------
+-----------------------------------------------
+checking for refinement
+regridding
+Regridded tree in 0.000599 seconds
+rebalancing 1353 nodes with 1184 leaves
+Rebalanced tree in 0.069712 seconds
+forming tree connections
+1080 amr boundaries
+Formed tree in 0.051548 seconds
+solving gravity
+regrid done in 0.423699 seconds
+---------------------------------------
+-----------------------------------------------
+checking for refinement
+---------------Created Level 4---------------
+
+regridding
+Regridded tree in 0.003787 seconds
+rebalancing 5769 nodes with 5048 leaves
+Rebalanced tree in 0.214219 seconds
+forming tree connections
+3032 amr boundaries
+Formed tree in 0.192064 seconds
+solving gravity
+regrid done in 1.186217 seconds
+---------------------------------------
+-----------------------------------------------
+checking for refinement
+---------------Created Level 5---------------
+
+regridding
+Regridded tree in 0.003594 seconds
+rebalancing 5769 nodes with 5048 leaves
+Rebalanced tree in 0.007495 seconds
+forming tree connections
+3032 amr boundaries
+Formed tree in 0.132427 seconds
+solving gravity
+regrid done in 1.406250 seconds
+---------------------------------------
+---------------Re-gridded Level 5---------------
+
+solving gravity------------
+...done
+Start execution the solver...
+Starting run...
+Solving gravity
+-----------------------------------------------
+checking for refinement
+regridding
+Regridded tree in 0.003849 seconds
+rebalancing 5769 nodes with 5048 leaves
+Rebalanced tree in 0.007263 seconds
+forming tree connections
+3032 amr boundaries
+Formed tree in 0.128036 seconds
+solving gravity
+regrid done in 1.280263 seconds
+---------------------------------------
+OMEGA = 0.000000e+00, output_dt = 1.000000e-01
+0.000000e+00 1.000000e-01
+normal step...
+1 3.091449e-03 3.091449e-03 3.372597e+00 3.091449e-03
+2 6.506765e-03 3.415316e-03 2.976287e+00 6.506765e-03
+3 1.021648e-02 3.709716e-03 3.541024e+00 1.021648e-02
+4 1.411875e-02 3.902267e-03 3.225364e+00 1.411875e-02
+5 1.817426e-02 4.055515e-03 3.867025e+00 1.817426e-02
+TS 5:: t: 1.817426e-02, dt: 4.055515e-03, time_elapsed: 1.700045e+01, rotational_time: 1.817426e-02, x: 7.675781e-01, y: 3.808594e-01, z: -2.050781e-01, a: 1.155834e+00, ur: 2.533880e-10, ul: 1.188149e-09, vr: 2.964689e-01, vl: 3.933349e-01, dim: 1, ngrids: 5769, leafs: 5048, amr_boundaries: 3032
+-----------------------------------------------
+checking for refinement
+regridding
+Regridded tree in 0.011237 seconds
+rebalancing 5769 nodes with 5048 leaves
+Rebalanced tree in 0.007448 seconds
+forming tree connections
+3032 amr boundaries
+Formed tree in 0.127137 seconds
+solving gravity
+regrid done in 1.167267 seconds
+---------------------------------------
+normal step...
+6 2.219803e-02 4.023770e-03 3.242586e+00 2.219803e-02
+TS 6:: t: 2.219803e-02, dt: 4.023770e-03, time_elapsed: 3.254083e+00, rotational_time: 2.219803e-02, x: -3.691406e-01, y: -7.675781e-01, z: -2.285156e-01, a: 1.164952e+00, ur: 4.088763e-10, ul: 2.212434e-10, vr: 3.253417e-01, vl: 2.349362e-01, dim: 0, ngrids: 5769, leafs: 5048, amr_boundaries: 3032
+L1, L2
+             rho 1.791226e-06 1.150757e-05
+            egas 3.430326e-07 2.996896e-06
+             tau 7.822470e-07 4.957832e-06
+             pot 5.284982e-03 3.961569e-02
+              sx 3.296883e-07 2.314598e-06
+              sy 3.296890e-07 2.314604e-06
+              sz 1.494126e-07 1.781404e-06
+              zx 1.461491e-04 8.886621e-04
+              zy 1.461491e-04 8.886621e-04
+              zz 5.833355e-04 3.077059e-03
+           spc_1 1.791226e-06 1.150757e-05
+           spc_2 1.435728e-13 1.557173e-12
+           spc_3 0.000000e+00 0.000000e+00
+           spc_4 0.000000e+00 0.000000e+00
+           spc_5 0.000000e+00 0.000000e+00
+Finished solver exeuction - Scenario done!...:
+   Total: 21.4228
+   Computation: 20.2248 (94.4079 %)
+   Regrid: 2.44758 (11.4251 %)
+   Computation + Regrid: 22.6724 (105.833 %)
+Exiting...
+
+Start timings report...
+Finished timings report!
+Start cleanup...
+Finished cleanup...
+Before HPX finalize ...
+After HPX finalize ...
+After HPX finalize ...
+After HPX finalize ...
+After HPX finalize ...
+
+Time per timestep report (in seconds)
+-------------------------------------
+Min time-per-timestep: 2.97629
+Median time-per-timestep: 3.30759
+Average time-per-timestep: 3.37081
+Max time-per-timestep: 3.86702
+List of times-per-timestep: 3.3726 2.97629 3.54102 3.22536 3.86702 3.24259
+Executed 1 configs. Total time is 29.218454122543335s.

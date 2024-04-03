@@ -12,7 +12,7 @@ import time
 baseline = {
     "name": "lci",
     "spack_env": "hpx-lcw",
-    "nnodes": [256],
+    "nnodes": [2],
     "ntasks_per_node": 4,
     "griddim": 8,
     "max_level": 5,
@@ -21,8 +21,6 @@ baseline = {
     "scenario": "rs",
     "parcelport": "lci",
     "protocol": "putsendrecv",
-    "comp_type_header": "queue",
-    "comp_type_followup": "queue",
     "progress_type": "worker",
     "prg_thread_num": "auto",
     "sendimm": 1,
@@ -36,13 +34,13 @@ baseline = {
     "ndevices": 2,
     "ncomps": 1,
     "lcw_backend": "mpi",
-    "bg_work_when_send": 0,
 }
 matrix_outside = ["nnodes"]
 matrix_inside = []
 time_limit = 2
 
 if platformConfig.name == "perlmutter":
+    baseline["spack_env"] = "hpx-lci-bell24"
     baseline["ntasks_per_node"] = 4
     baseline["ngpus"] = 1
     baseline["stop_step"] = 5
@@ -90,10 +88,10 @@ if platformConfig.name == "frontera":
 configs = [
     # # # LCI v.s. MPI
     # {**baseline, "name": "mpi_a", "parcelport": "mpi", "sendimm": 0},
-    {**baseline, "name": "mpi", "parcelport": "mpi"},
+    # {**baseline, "name": "mpi", "parcelport": "mpi"},
     # {**baseline, "name": "lci_d1", "parcelport": "lci", "ndevices": 1},
     # {**baseline, "name": "lci_mutex", "parcelport": "lci", "cq_type": "array_mutex"},
-    # {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "lci", "parcelport": "lci"},
     # {**baseline, "name": "lci_mpi", "parcelport": "lci",
     #  "lock_mode": "global",
     #  "protocol": "sendrecv", "ndevices": 1,
@@ -129,10 +127,10 @@ configs = [
     # {**baseline, "name": "lci_followup_sync", "protocol": "sendrecv", "enable_sendmc": 1, "comp_type_followup": "sync"},
     # {**baseline, "name": "lci_followup_2queue", "ncomps": 2},
     # # ndevices + progress_type
-    # {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
+    {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d2_c1", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d4_c1", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
-    # {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
+    {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "lci_pin_d2_c1", "ndevices": 2, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "lci_pin_d4_c1", "ndevices": 4, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "lci-griddim2", "parcelport": "lci",

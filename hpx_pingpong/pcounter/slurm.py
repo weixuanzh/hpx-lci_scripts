@@ -39,6 +39,7 @@ pshell.run("cd " + os.path.join(current_path, "run"))
 pshell.run("export LCT_PCOUNTER_MODE=on-the-fly")
 pshell.run("export LCT_PCOUNTER_RECORD_INTERVAL=1000")
 pshell.run("export LCT_PCOUNTER_AUTO_DUMP=lct_pcounter.{}.%.out".format(os.environ["SLURM_JOB_ID"]))
+pshell.run("export TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=1677721600")
 
 start_time = time.time()
 for config in configs:

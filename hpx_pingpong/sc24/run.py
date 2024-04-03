@@ -86,8 +86,8 @@ hpx_configs2 = [
     # {"name": "lci_pin", "progress_type": "rp"},
     # {"name": "lci_pthread", "progress_type": "pthread"},
     # {"name": "lci_pthread_worker", "progress_type": "pthread_worker"},
-    {"name": "lci_pthread_d1", "progress_type": "pthread", "ndevices": 1},
-    {"name": "lci_pthread_worker_d1", "progress_type": "pthread_worker", "ndevices": 1},
+    # {"name": "lci_pthread_d1", "progress_type": "pthread", "ndevices": 1},
+    # {"name": "lci_pthread_worker_d1", "progress_type": "pthread_worker", "ndevices": 1},
     # # device lock
     # {"name": "lci_global_d1", "ndevices": 1, "parcelport": "lci", "lock_mode": "global"},
     # {"name": "lci_global_d2", "ndevices": 2, "parcelport": "lci", "lock_mode": "global"},
@@ -98,11 +98,11 @@ hpx_configs2 = [
     # {"name": "lci_global_b_d4", "ndevices": 4, "parcelport": "lci", "lock_mode": "global_b"},
     # {"name": "lci_global_b_d8", "ndevices": 8, "parcelport": "lci", "lock_mode": "global_b"},
     # # ndevices + progress_type
-    # {"name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
+    {"name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
     # {"name": "lci_mt_d2_c1", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
     # {"name": "lci_mt_d4_c1", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
     # {"name": "lci_mt_d8_c1", "ndevices": 8, "progress_type": "worker", "ncomps": 1},
-    # {"name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
+    {"name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
     # # # Aggregation
     # {"name": "lci_a", "sendimm": 0},
 ]

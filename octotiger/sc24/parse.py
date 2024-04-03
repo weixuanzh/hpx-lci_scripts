@@ -8,7 +8,7 @@ import ast
 import pandas as pd
 import os,sys
 
-name = "20240330-expanse"
+name = "20240331-delta"
 input_path = "run/{}/slurm_output.*".format(name)
 output_path = "data/"
 filename_pattern = {

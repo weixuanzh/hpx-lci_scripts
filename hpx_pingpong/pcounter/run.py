@@ -8,8 +8,8 @@ baseline = {
     "spack_env": "hpx-lcw",
     "nnodes": [2],
     "ntasks_per_node": 1,
-    "nbytes": [8],
-    "nchains": [5000000],
+    "nbytes": [16384],
+    "nchains": [100000],
     "nsteps": [1],
     "intensity": [0],
     "is_single_source": "1",
@@ -29,8 +29,8 @@ baseline = {
     "match_table_type": "hashqueue",
     "cq_type": "array_atomic_faa",
     "reg_mem": 1,
-    "ndevices": 16,
-    "ncomps": 16,
+    "ndevices": 2,
+    "ncomps": 1,
     "lcw_backend": "mpi"
 }
 if platformConfig.name == "rostam":
@@ -45,8 +45,9 @@ time_limit = 1
 
 configs = [
     # baseline,
-    {**baseline, "name": "lci", "parcelport": "lci"},
-    {**baseline, "name": "lci_bidir", "parcelport": "lci", "is_single_source": "0"},
+    # {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "lci_bidir", "parcelport": "lci", "is_single_source": "0"},
+    {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
 ]
 def config_fn(config):
     if "-nthreads" in config["name"]:

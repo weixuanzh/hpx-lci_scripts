@@ -6,19 +6,19 @@ import json
 import itertools
 import math
 
-job_name = "20240323-all"
+job_name = "20240401-all"
 job_name_dict = {
     "Expanse": {
-        "mbench": "../../hpx_pingpong/sc24/data/20240318-expanse.csv",
-        "bench": "../../octotiger/sc24/data/20240320-expanse.csv"
+        "mbench": "../../hpx_pingpong/sc24/data/20240330-expanse.csv",
+        "bench": "../../octotiger/sc24/data/20240330-expanse.csv"
     },
     "Frontera": {
         "mbench": "../../hpx_pingpong/sc24/data/20240319-frontera.csv",
         "bench": "../../octotiger/sc24/data/20240320-frontera.csv"
     },
     "Delta": {
-        "mbench": "../../hpx_pingpong/sc24/data/20240323-delta.csv",
-        "bench": "../../octotiger/sc24/data/20240322-delta.csv"
+        "mbench": "../../hpx_pingpong/sc24/data/20240331-delta.csv",
+        "bench": "../../octotiger/sc24/data/20240331-delta.csv"
     }
 }
 platforms = ["Expanse", "Frontera", "Delta"]

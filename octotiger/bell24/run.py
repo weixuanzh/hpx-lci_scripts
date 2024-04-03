@@ -32,24 +32,24 @@ baseline = {
     "ndevices": 2,
     "ncomps": 1,
 }
-time_limit = 5
+time_limit = 1
 
 problems = [
     # {"scenario": "dwd-l10-close_to_merger", "nnodes": [256, 512]},
     # {"scenario": "dwd-l10-beginning", "nnodes": [1, 2, 4, 8, 16, 32]},
     # {"scenario": "dwd-l11-close_to_merger", "nnodes": [512, 1024, 1250]},
     # {"scenario": "dwd-l11-beginning", "nnodes": [32]},
-    # {"scenario": "dwd-l12-close_to_merger", "nnodes": [128, 256, 512, 1024, 1250]},
-    # {"scenario": "dwd-l12-beginning", "nnodes": [32]},
+    {"scenario": "dwd-l12-close_to_merger", "nnodes": [1250, 1500]},
+    # {"scenario": "dwd-l12-beginning", "nnodes": [64, 128, 256, 512]},
     # {"scenario": "dwd-l10-close_to_merger", "nnodes": [32]},
-    {"scenario": "dwd-l11-close_to_merger", "nnodes": [1024, 1250]},
-    {"scenario": "dwd-l12-close_to_merger", "nnodes": [512]},
+    # {"scenario": "dwd-l11-close_to_merger", "nnodes": [1024, 1250]},
+    # {"scenario": "dwd-l12-close_to_merger", "nnodes": [512]},
 ]
 
 configs = [
     # # # LCI v.s. MPI
     {**baseline, "name": "lci", "parcelport": "lci"},
-    # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
+    {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},
 ]
 
 if __name__ == "__main__":

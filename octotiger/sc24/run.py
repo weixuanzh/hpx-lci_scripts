@@ -43,6 +43,8 @@ if platformConfig.name == "expanse":
     baseline["ntasks_per_node"] = 2
 if platformConfig.name == "delta":
     baseline["ntasks_per_node"] = 2
+# if platformConfig.name == "frontera":
+#     baseline["ntasks_per_node"] = 2
 if platformConfig.name == "perlmutter":
     baseline["ntasks_per_node"] = 4
     baseline["ngpus"] = 1
@@ -52,12 +54,12 @@ if platformConfig.name == "perlmutter":
 configs1 = [
     # # # LCI v.s. MPI
     # {**baseline, "name": "lci", "nnodes": [32], "parcelport": "lci"},
-    # {**baseline, "name": "lci", "nnodes": [32], "parcelport": "lci"},
+    # {**baseline, "name": "lci", "nnodes": [64], "parcelport": "lci"},
     # {**baseline, "name": "mpi_a", "nnodes": [64], "parcelport": "mpi", "sendimm": 0},
-    # {**baseline, "name": "mpi", "nnodes": [32], "parcelport": "mpi", "sendimm": 1},
-    {**baseline, "name": "lci", "nnodes": [2, 4, 8, 16, 32], "parcelport": "lci"},
-    {**baseline, "name": "mpi_a", "nnodes": [2, 4, 8, 16, 32], "parcelport": "mpi", "sendimm": 0},
-    {**baseline, "name": "mpi", "nnodes": [2, 4, 8, 16, 32], "parcelport": "mpi", "sendimm": 1},
+    # {**baseline, "name": "mpi", "nnodes": [64], "parcelport": "mpi", "sendimm": 1},
+    # {**baseline, "name": "lci", "nnodes": [2, 4, 8, 16, 32], "parcelport": "lci"},
+    # {**baseline, "name": "mpi_a", "nnodes": [2, 4, 8, 16, 32], "parcelport": "mpi", "sendimm": 0},
+    # {**baseline, "name": "mpi", "nnodes": [2, 4, 8, 16, 32], "parcelport": "mpi", "sendimm": 1},
     # {**baseline, "name": "lci", "nnodes": [128, 256], "parcelport": "lci"},
     # {**baseline, "name": "mpi_a", "nnodes": [32, 64, 128, 256], "parcelport": "mpi"},
     # {**baseline, "name": "mpi", "nnodes": [32, 64, 128, 256], "parcelport": "mpi"},
@@ -93,8 +95,8 @@ configs2 = [
     # {**baseline, "name": "lci_pin", "progress_type": "rp"},
     # {**baseline, "name": "lci_pthread", "progress_type": "pthread"},
     # {**baseline, "name": "lci_pthread_worker", "progress_type": "pthread_worker"},
-    {**baseline, "name": "lci_pthread_d1", "progress_type": "pthread", "ndevices": 1},
-    {**baseline, "name": "lci_pthread_worker_d1", "progress_type": "pthread_worker", "ndevices": 1},
+    # {**baseline, "name": "lci_pthread_d1", "progress_type": "pthread", "ndevices": 1},
+    # {**baseline, "name": "lci_pthread_worker_d1", "progress_type": "pthread_worker", "ndevices": 1},
     # # # device lock
     # {**baseline, "name": "lci_global_d1", "ndevices": 1, "parcelport": "lci", "lock_mode": "global"},
     # {**baseline, "name": "lci_global_d2", "ndevices": 2, "parcelport": "lci", "lock_mode": "global"},
@@ -105,19 +107,17 @@ configs2 = [
     # {**baseline, "name": "lci_global_b_d4", "ndevices": 4, "parcelport": "lci", "lock_mode": "global_b"},
     # {**baseline, "name": "lci_global_b_d8", "ndevices": 8, "parcelport": "lci", "lock_mode": "global_b"},
     # # ndevices + progress_type
-    # {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
+    {**baseline, "name": "lci_mt_d1_c1", "ndevices": 1, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d2_c1", "ndevices": 2, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d4_c1", "ndevices": 4, "progress_type": "worker", "ncomps": 1},
     # {**baseline, "name": "lci_mt_d8_c1", "ndevices": 8, "progress_type": "worker", "ncomps": 1},
-    # {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
+    {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
     # # # Aggregation
     # {**baseline, "name": "lci_a", "sendimm": 0},
 ]
 
 # configs = configs1
 configs = configs2
-# for config in configs:
-#     config.update({"griddim": 2, "spack_env": "hpx-lcw-sc24-griddim2"})
 
 if __name__ == "__main__":
     n = 1

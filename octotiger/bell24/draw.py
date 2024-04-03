@@ -20,7 +20,8 @@ def plot(df, x_key, y_key, tag_key, title,
          dirname=None, filename=None,
          label_fn=None, zero_x_is=0,
          base=None, smaller_is_better=True,
-         with_error=True, position="all"):
+         with_error=True, position="all",
+         color_map=None):
     plot_bokeh(df, x_key, y_key, tag_key, title,
                x_label=x_label, y_label=y_label,
                dirname=dirname, filename=filename,
@@ -47,16 +48,20 @@ def plot(df, x_key, y_key, tag_key, title,
     # Setup colors
     # cmap_tab20=plt.get_cmap('tab20')
     # ax.set_prop_cycle(color=[cmap_tab20(i) for i in chain(range(0, 20, 2), range(1, 20, 2))])
-    markers = itertools.cycle(('D', 'o', 'v', ',', '+'))
+    # markers = itertools.cycle(('D', 'o', 'v', ',', '+'))
+    markers = itertools.cycle(('o', 'v'))
     # time
     for line in lines:
         marker = next(markers)
         line["marker"] = marker
+        color = None
+        if color_map is not None:
+            color = color_map(line["label"][:-4])
         if with_error:
             line["error"] = [0 if math.isnan(x) else x for x in line["error"]]
-            ax.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=marker, markerfacecolor='white', capsize=3, markersize=8, linewidth=2)
+            ax.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=marker, markerfacecolor='white', capsize=3, markersize=8, linewidth=2, color=color)
         else:
-            ax.plot(line["x"], line["y"], label=line["label"], marker=marker, markerfacecolor='white', markersize=8, linewidth=2)
+            ax.plot(line["x"], line["y"], label=line["label"], marker=marker, markerfacecolor='white', markersize=8, linewidth=2, color=color)
     ax.set_xlabel(x_label)
     if position == "all" or position == "left":
         ax.set_ylabel(y_label)
@@ -125,31 +130,39 @@ def batch(df):
 
     def calculate_flops(row):
         dict = {
-            "dwd-l10-beginning": 5.27503e11,
-            "dwd-l10-close_to_merger": 1.68309e12,
-            "dwd-l11-beginning": 1.10725e12,
-            "dwd-l11-close_to_merger": 1.74806e13,
-            "dwd-l12-beginning": 9.04417e12,
-            "dwd-l12-close_to_merger": 1.07915e14,
+            "dwd-l10-beginning": 5.27503e11 * 25,
+            "dwd-l10-close_to_merger": 1.68309e12 * 25,
+            "dwd-l11-beginning": 1.10725e12 * 25,
+            "dwd-l11-close_to_merger": 1.74806e13 * 25,
+            "dwd-l12-beginning": 9.04417e12 * 25,
+            "dwd-l12-close_to_merger": 1.07915e14 * 25,
         }
         return dict[row["scenario"]] / row["Total(s)"]
     df["tag"] = df.apply(lambda row: "{}-{}".format(row["scenario"], row["parcelport"]), axis=1)
     df["flops"] = df.apply(calculate_flops, axis=1)
+    def color_map(name):
+        dict = {
+            "dwd-l10-beginning": "C1",
+            "dwd-l10-close_to_merger": "C2",
+            "dwd-l11-beginning": "C3",
+            "dwd-l11-close_to_merger": "C4",
+            "dwd-l12-beginning": "C5",
+            "dwd-l12-close_to_merger": "C6",
+        }
+        return dict[name]
 
     df1_tmp = df[df.apply(lambda row:
-                          row["nnodes"] >= 2 and
-                          row["nnodes"] <= 256,
+                          row["nnodes"] >= 2,
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nnodes", "Total(s)", "tag", "MPI parcelport v.s. LCI parcelport",
-         dirname=dirname, filename="mpi_vs_lci_time", base="lci", with_error=False)
+         dirname=dirname, filename="mpi_vs_lci_time", base="lci", with_error=False, color_map=color_map)
     df1_tmp = df[df.apply(lambda row:
-                          row["nnodes"] >= 2 and
-                          row["nnodes"] <= 256,
+                          row["nnodes"] >= 2,
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nnodes", "flops", "tag", "MPI parcelport v.s. LCI parcelport",
-         dirname=dirname, filename="mpi_vs_lci_flops", base="lci", with_error=False)
+         dirname=dirname, filename="mpi_vs_lci_flops", base="lci", with_error=False, color_map=color_map)
 
 
 if __name__ == "__main__":

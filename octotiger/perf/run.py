@@ -43,15 +43,20 @@ if platformConfig.name == "perlmutter":
 if platformConfig.name == "expanse":
     baseline["spack_env"] = "hpx-lcw-sc24"
     baseline["ntasks_per_node"] = 2
-    baseline["nnodes"] = [2]
+    baseline["nnodes"] = [32]
+if platformConfig.name == "delta":
+    baseline["spack_env"] = "hpx-lcw-sc24"
+    baseline["ntasks_per_node"] = 2
+    baseline["nnodes"] = [32]
 if platformConfig.name == "frontera":
     baseline["spack_env"] = "hpx-lcw-sc24"
     baseline["nnodes"] = [32]
 
 configs = [
     # {**baseline, "name": "mpi", "parcelport": "mpi"},
-    {**baseline, "name": "mpi_a", "parcelport": "mpi", "sendimm": 0},
-    # {**baseline, "name": "lci", "parcelport": "lci"},
+    # {**baseline, "name": "mpi_a", "parcelport": "mpi", "sendimm": 0},
+    {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "lci_global_b", "parcelport": "lci", "lock_mode": "global_b"},
     # {**baseline, "name": "lci_pin", "progress_type": "pin"},
     # {**baseline, "name": "lci_mutex", "parcelport": "lci", "cq_type": "array_mutex"},
     # {**baseline, "name": "mpi", "parcelport": "mpi", "sendimm": 0},

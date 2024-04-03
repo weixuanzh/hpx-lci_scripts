@@ -53,9 +53,9 @@ time_limit = 1
 
 configs = [
     # baseline,
-    # {**baseline, "name": "lci", "parcelport": "lci"},
+    {**baseline, "name": "lci", "parcelport": "lci"},
     # {**baseline, "name": "lci_sendrecv", "protocol": "sendrecv"},
-    {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
+    # {**baseline, "name": "lci_pin_d1_c1", "ndevices": 1, "progress_type": "rp", "ncomps": 1},
     # {**baseline, "name": "mpi", "parcelport": "mpi"},
     # {**baseline, "name": "lcw_mpi", "parcelport": "lcw"},
 ]

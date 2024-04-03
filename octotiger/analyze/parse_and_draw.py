@@ -173,6 +173,7 @@ if __name__ == "__main__":
         lines1, labels1 = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax2.legend(lines1 + lines2, labels1 + labels2, loc='best', ncol=1, fancybox=True)
+        ax2.set_ylim(ymin=0)
         if x_label is not None:
             ax.set_xlabel(x_label)
         if y_label is not None:

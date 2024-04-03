@@ -7,7 +7,8 @@ import itertools
 import math
 import re
 
-from matplotlib import gridspec
+from matplotlib import gridspec, ticker
+from matplotlib.ticker import FormatStrFormatter
 
 job_name = "20240330-brief"
 job_name_dict = {
@@ -20,8 +21,8 @@ job_name_dict = {
         "bench": "../../octotiger/sc24/data/20240320-frontera.csv"
     },
     "Delta": {
-        "mbench": "../../hpx_pingpong/sc24/data/20240323-delta.csv",
-        "bench": "../../octotiger/sc24/data/20240322-delta.csv"
+        "mbench": "../../hpx_pingpong/sc24/data/20240331-delta.csv",
+        "bench": "../../octotiger/sc24/data/20240331-delta.csv"
     }
 }
 platform = "Expanse"
@@ -157,24 +158,24 @@ def draw_line(df, x_key, y_key, tag_key,
                      linestyle='dotted', markersize=8, linewidth=2)
         ax2.set_ylabel("Ratio")
     # ax2.legend()
-    plt.rcParams['axes.formatter.min_exponent'] = 2
+    # plt.rcParams['axes.formatter.min_exponent'] = 2
     # ax.tick_params(axis='y', which='both')
-    # ax.yaxis.set_minor_locator(ticker.MaxNLocator(2))
+    ax.yaxis.set_minor_locator(ticker.MaxNLocator(3))
     # ax.yaxis.set_minor_formatter(ticker.LogFormatterMathtext())
-    # ax.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+    ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f"))
+    ax.yaxis.set_minor_formatter(FormatStrFormatter("%.0f"))
 
     # ask matplotlib for the plotted objects and their labels
     if ax2:
         lines1, labels1 = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        fig.legend(lines1 + lines2, labels1 + labels2, loc="center", bbox_to_anchor=(0.5, 1), ncols=5,
-                   fontsize=14)
+        fig.legend(lines1 + lines2, labels1 + labels2, loc="center", bbox_to_anchor=(0.5, 1), ncols=5)
     else:
-        fig.legend(loc="center", bbox_to_anchor=(0.5, 1), ncols=5, fontsize=14)
+        fig.legend()
 
     lines_json.append(lines)
     speedups_json.append(speedup_lines)
-    # plt.tight_layout()
+    plt.tight_layout()
 
     if not os.path.exists(output_path):
         os.mkdir(output_path)
@@ -187,108 +188,10 @@ def draw_line(df, x_key, y_key, tag_key,
     with open(output_json_name, 'w') as outfile:
         json.dump({"Time": lines_json, "Ratio": speedups_json}, outfile)
 
-def draw_broken_line(df, x_key, y_key, tag_key, y_lim1, y_lim2,
-              dirname="default", filename=None, base=None, smaller_is_better=True, label_dict=None,
-              with_error=True, sort_key=None, x_label=None, y_label=None,
-              xscale=None, yscale=None,
-              x_key_fn=None, tag_key_fn=None, criteria_fn=None):
-    if label_dict is None:
-        label_dict = {}
-    if x_label is None:
-        x_label = x_key
-    if y_label is None:
-        y_label = y_key
 
-    lines_json = []
-    fig = plt.figure(figsize=(4, 3))
-    spec = gridspec.GridSpec(ncols=1, nrows=2,
-                             width_ratios=[1], wspace=0,
-                             hspace=0.1, height_ratios=[1, 2])
-    ax2 = fig.add_subplot(spec[0])
-    ax1 = fig.add_subplot(spec[1])
-    if x_key_fn:
-        df[x_key] = df.apply(x_key_fn, axis=1)
-    if tag_key_fn:
-        df[tag_key] = df.apply(tag_key_fn, axis=1)
-    if criteria_fn:
-        df = df[df.apply(criteria_fn, axis=1)]
-    df = df.sort_values(x_key)
-
-    lines = parse_tag(df, x_key, y_key, tag_key)
-    # update labels
-    if label_dict:
-        for line in lines:
-            label = line["label"]
-            if label in label_dict:
-                line["label"] = label_dict[line["label"]]
-        if base in label_dict:
-            base = label_dict[base]
-
-    if sort_key:
-        lines.sort(key=sort_key)
-
-    markers = itertools.cycle(('D', 'o', 'v', ',', '+'))
-    # time
-    for line in lines:
-        print(line)
-        line["marker"] = next(markers)
-        if with_error:
-            ax1.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=line["marker"],
-                        markerfacecolor='white', capsize=3, markersize=8, linewidth=2)
-            ax2.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=line["marker"],
-                        markerfacecolor='white', capsize=3, markersize=8, linewidth=0)
-        else:
-            ax1.plot(line["x"], line["y"], label=line["label"], marker=line["marker"], markerfacecolor='white',
-                    markersize=8, linewidth=2)
-            ax2.plot(line["x"], line["y"], label=line["label"], marker=line["marker"], markerfacecolor='white',
-                    markersize=8, linewidth=2)
-    ax1.set_xlabel(x_label)
-    ax1.set_ylabel(y_label)
-    ax1.yaxis.set_label_coords(-0.14, 0.8)
-    if xscale:
-        ax1.set_xscale(xscale)
-    if yscale:
-        ax1.set_yscale(yscale)
-        ax2.set_yscale(yscale)
-
-    plt.rcParams['axes.formatter.min_exponent'] = 2
-    # ax.tick_params(axis='y', which='both')
-    # ax.yaxis.set_minor_locator(ticker.MaxNLocator(2))
-    # ax.yaxis.set_minor_formatter(ticker.LogFormatterMathtext())
-    # ax.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
-
-    # ask matplotlib for the plotted objects and their labels
-    ax1.legend(loc="center", bbox_to_anchor=(0.4, 1.75), ncols=5, fontsize=14)
-
-    ax1.set_ylim(*y_lim1)
-    ax2.set_ylim(*y_lim2)
-    ax2.spines.bottom.set_visible(False)
-    ax1.spines.top.set_visible(False)
-    ax2.xaxis.tick_top()
-    ax2.tick_params(labeltop=False)  # don't put tick labels at the top
-    ax1.xaxis.tick_bottom()
-    d = .5  # proportion of vertical to horizontal extent of the slanted line
-    kwargs = dict(marker=[(-1, -d), (1, d)], markersize=12,
-                  linestyle="none", color='k', mec='k', mew=1, clip_on=False)
-    ax2.plot([0, 1], [0, 0], transform=ax2.transAxes, **kwargs)
-    ax1.plot([0, 1], [1, 1], transform=ax1.transAxes, **kwargs)
-
-    lines_json.append(lines)
-    # plt.tight_layout()
-
-    if not os.path.exists(output_path):
-        os.mkdir(output_path)
-    dirname = os.path.join(output_path, dirname)
-    if not os.path.exists(dirname):
-        os.mkdir(dirname)
-    output_png_name = os.path.join(dirname, "{}.png".format(filename))
-    fig.savefig(output_png_name, bbox_inches='tight')
-    output_json_name = os.path.join(dirname, "{}.json".format(filename))
-    with open(output_json_name, 'w') as outfile:
-        json.dump({"Time": lines_json}, outfile)
-
-
-def draw_bar(configs, data, labels, filename, dirname="default", title=None, legend_loc="best", legend_fn=None, with_error=True):
+def draw_bar(configs, data, labels, filename, dirname="default", title=None,
+             legend_loc="best", legend_fn=None, with_error=True,
+             x_ticks_rotate=0):
     if title is None:
         title = filename
     x = np.arange(len(labels))  # the label locations
@@ -326,7 +229,7 @@ def draw_bar(configs, data, labels, filename, dirname="default", title=None, leg
     ax.set_ylabel("Normalized Performance")
     ax.grid(linestyle='dashed', axis="x")
     # plt.title(title)
-    plt.xticks(rotation=0)
+    plt.xticks(rotation=x_ticks_rotate)
     plt.tight_layout()
 
     if not os.path.exists(output_path):
@@ -429,7 +332,7 @@ def apply_mask(l, mask):
 
 
 def draw_diff(df, base, configs, filename, dirname="default", title=None, legend_loc="best", legend_fn=None, label_mask=None,
-              criteria_fn=None):
+              criteria_fn=None, x_ticks_rotate=0):
     labels = ["Message Rate\n(8B)", "Message Rate\n(16KiB)", "1 / Latency\n(8B)", "1 / Latency\n(16KiB)", "Efficiency",
               "1 / OctoTiger\n(s)"]
     labels = apply_mask(labels, label_mask)
@@ -456,13 +359,11 @@ def draw_diff(df, base, configs, filename, dirname="default", title=None, legend
         stds.append(apply_mask(normalize_data(current_stds, base_xs), label_mask))
     data = {"xs": xs, "stds": stds}
 
-    draw_bar(configs, data, labels, filename, dirname, title, legend_loc, legend_fn, with_error=with_error)
+    draw_bar(configs, data, labels, filename, dirname, title, legend_loc, legend_fn, with_error=with_error,
+             x_ticks_rotate=x_ticks_rotate)
 
 
 def batch(df):
-    plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 12
-
     draw_diff(df, "lci_2queue",
               ["lci_sendrecv",
                "lci_header_sync_single_nolock",
@@ -483,7 +384,8 @@ def batch(df):
               legend_loc="upper left", legend_fn=lambda x: {"lci_followup_sync": "sync",
                                                             "lci_followup_sync_poll": "sync_poll",
                                                                 "lci_followup_queue_mutex": "queue_lock",
-                                                                "lci_followup_2queue": "2queue"}[x])
+                                                                "lci_followup_2queue": "2queue"}[x],
+              x_ticks_rotate=45)
 
     draw_diff(df, "lci_mt_d1_c1",
               ["lci_pin_d1_c1",
@@ -507,13 +409,6 @@ def batch(df):
 
     draw_line(df[1], "ndevices", "Total(s)", "ndevices_tag",
               dirname=dirname, filename="ndevices-app", with_error=True,
-              xscale="log", yscale="log", sort_key=lambda x: {"base": 0, "try-lock": 1, "lock": 2}[x["label"]],
-              x_label="Device Number", y_label="Time to Solution (s)",
-              criteria_fn=lambda row: row["ndevices_tag"] in ["base", "try-lock", "lock"] and
-                                      row["max_level"] == 5)
-
-    draw_broken_line(df[1], "ndevices", "Total(s)", "ndevices_tag", (2.8, 3.6), (45, 50),
-              dirname=dirname, filename="ndevices-app-broken", with_error=True,
               xscale="log", yscale="log", sort_key=lambda x: {"base": 0, "try-lock": 1, "lock": 2}[x["label"]],
               x_label="Device Number", y_label="Time to Solution (s)",
               criteria_fn=lambda row: row["ndevices_tag"] in ["base", "try-lock", "lock"] and
@@ -550,7 +445,43 @@ def preprocess_df(df):
 
 
 if __name__ == "__main__":
+    plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.size"] = 12
     df_mbench = preprocess_df(pd.read_csv(job_name_dict[platform]["mbench"]))
     df_bench = preprocess_df(pd.read_csv(job_name_dict[platform]["bench"]))
     df = (df_mbench, df_bench)
     batch(df)
+
+    platforms = ["Expanse", "Delta"]
+    dfs = []
+    for platform in platforms:
+        df = preprocess_df(pd.read_csv(job_name_dict[platform]["mbench"]))
+        df["job"] = "hpx_pingpong"
+        df["platform"] = platform
+        dfs.append(df)
+        df = preprocess_df(pd.read_csv(job_name_dict[platform]["bench"]))
+        df["job"] = "octotiger"
+        df["platform"] = platform
+        dfs.append(df)
+    df = pd.concat(dfs)
+
+    draw_line(df, "nthreads", "msg_rate(K/s)", "platform",
+              dirname="ss11", filename="flood-8B", with_error=True,
+              xscale="log", yscale="log", sort_key=lambda x: {"Expanse": 0, "Delta": 1}[x["label"]],
+              x_label="Thread Number", y_label="Message Rate (K/s)",
+              criteria_fn=lambda row: row["nbytes"] == 8 and
+                                      row["nchains"] == 1000000 and
+                                      row["nsteps"] == 1 and
+                                      row["name"] == "lci" and
+                                      row["parcelport"] == "lci" and
+                                      row["pingpong_config_name"] == "flood")
+
+    draw_line(df, "nnodes", "Total(s)", "platform",
+              dirname="ss11", filename="octotiger", with_error=True,
+              xscale="log", yscale="log", sort_key=lambda x: {"Expanse": 0, "Delta": 1}[x["label"]],
+              x_label="Node Number", y_label="Time to Solution (s)",
+              criteria_fn=lambda row: row["max_level"] == 5 and
+                                      row["ntasks_per_node"] == 2 and
+                                      row["name"] == "lci" and
+                                      row["parcelport"] == "lci" and
+                                      row["nnodes"] <= 64)

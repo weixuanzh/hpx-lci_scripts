@@ -29,6 +29,8 @@ pshell.run("export UCX_RNDV_THRESH=12288")
 pshell.run("export UCX_MAX_RNDV_RAILS=1")
 pshell.run("export UCX_BCOPY_THRESH=32")
 pshell.run("export UCX_NET_DEVICES=mlx5_0:1")
+pshell.run("export LCI_LOG_LEVEL=info")
+pshell.run("export LCT_LOG_LEVEL=info")
 
 start_time = time.time()
 for config in configs:

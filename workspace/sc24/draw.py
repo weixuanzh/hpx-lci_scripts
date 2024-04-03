@@ -18,8 +18,8 @@ job_name_dict = {
         "bench": "../../octotiger/sc24/data/20240320-frontera.csv"
     },
     "Delta": {
-        "mbench": "../../hpx_pingpong/sc24/data/20240323-delta.csv",
-        "bench": "../../octotiger/sc24/data/20240322-delta.csv"
+        "mbench": "../../hpx_pingpong/sc24/data/20240331-delta.csv",
+        "bench": "../../octotiger/sc24/data/20240331-delta.csv"
     }
 }
 platforms = ["Expanse", "Frontera"]
