@@ -6,7 +6,7 @@ from matplotlib.ticker import PercentFormatter
 from tabulate import tabulate
 
 name="octotiger"
-input_file = "run/octotiger_analysis.*.out"
+input_file = "run/perlmutter-l10/octotiger_analysis.*.out"
 # input_file2 = "run-{}/slurm_output.analysis.n32-{}.*.out".format(name, name)
 if __name__ == "__main__":
     # filenames = glob.glob(input_file2)

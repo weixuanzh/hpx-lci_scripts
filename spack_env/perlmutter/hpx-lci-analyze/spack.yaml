@@ -11,13 +11,14 @@ spack:
   specs:
   - octotiger@master%gcc@12.3.0+cuda+kokkos cuda_arch=80 cppflags="-L/opt/cray/pe/mpich/8.1.28/gtl/lib -lmpi_gtl_cuda" 
     ^cppuddle@git.d013eb94f83d515aec3f614620d5a9ee721b73b9 max_number_gpus=4 
-    ^hpx@git.310f449f3fd4ccf6cb6d0a59e3d7a5edcf27fd4a networking=lci,mpi max_cpu_count=256 
+    ^hpx@git.310f449f3fd4ccf6cb6d0a59e3d7a5edcf27fd4a +lci_pp_log networking=lci,mpi max_cpu_count=256 
     ^cray-mpich 
     ^lci@git.6dcb6a8508f498bf65661e8a10497f1e7c84c18a+examples+tests+benchmarks+papi fabric=ofi default-pm=cray 
     ^silo~mpi
   view: true
   concretizer:
     unify: true
+    reuse: false
   develop:
     octotiger:
       path: ../../../../octotiger

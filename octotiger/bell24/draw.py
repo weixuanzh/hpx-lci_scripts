@@ -10,7 +10,8 @@ from draw_bokeh import plot_bokeh
 import numpy as np
 import math
 
-job_name = "20240329-perlmutter"
+job_name = "20240410-perlmutter-final"
+job_name = "20240413-frontier"
 input_path = "data/"
 output_path = "draw/"
 all_labels = ["nnodes", "scenario", "job", "parcelport", "nthreads", "max_level", "tag", "Total(s)"]
@@ -21,7 +22,7 @@ def plot(df, x_key, y_key, tag_key, title,
          label_fn=None, zero_x_is=0,
          base=None, smaller_is_better=True,
          with_error=True, position="all",
-         color_map=None):
+         style_map=None):
     plot_bokeh(df, x_key, y_key, tag_key, title,
                x_label=x_label, y_label=y_label,
                dirname=dirname, filename=filename,
@@ -55,13 +56,18 @@ def plot(df, x_key, y_key, tag_key, title,
         marker = next(markers)
         line["marker"] = marker
         color = None
-        if color_map is not None:
-            color = color_map(line["label"][:-4])
+        linestyle = None
+        if style_map is not None:
+            style = style_map(line["label"])
+            if "color" in style:
+                color = style["color"]
+            if "linestyle" in style:
+                linestyle = style["linestyle"]
         if with_error:
             line["error"] = [0 if math.isnan(x) else x for x in line["error"]]
-            ax.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=marker, markerfacecolor='white', capsize=3, markersize=8, linewidth=2, color=color)
+            ax.errorbar(line["x"], line["y"], line["error"], label=line["label"], marker=marker, markerfacecolor='white', capsize=3, markersize=8, linewidth=2, color=color, linestyle=linestyle)
         else:
-            ax.plot(line["x"], line["y"], label=line["label"], marker=marker, markerfacecolor='white', markersize=8, linewidth=2, color=color)
+            ax.plot(line["x"], line["y"], label=line["label"], marker=marker, markerfacecolor='white', markersize=8, linewidth=2, color=color, linestyle=linestyle)
     ax.set_xlabel(x_label)
     if position == "all" or position == "left":
         ax.set_ylabel(y_label)
@@ -127,7 +133,6 @@ def plot(df, x_key, y_key, tag_key, title,
 def batch(df):
     dirname = os.path.join(output_path, job_name)
 
-
     def calculate_flops(row):
         dict = {
             "dwd-l10-beginning": 5.27503e11 * 25,
@@ -138,31 +143,39 @@ def batch(df):
             "dwd-l12-close_to_merger": 1.07915e14 * 25,
         }
         return dict[row["scenario"]] / row["Total(s)"]
-    df["tag"] = df.apply(lambda row: "{}-{}".format(row["scenario"], row["parcelport"]), axis=1)
+    df["tag"] = df.apply(lambda row: "{}-{}".format(row["scenario"][:7], row["parcelport"]), axis=1)
     df["flops"] = df.apply(calculate_flops, axis=1)
-    def color_map(name):
-        dict = {
-            "dwd-l10-beginning": "C1",
-            "dwd-l10-close_to_merger": "C2",
-            "dwd-l11-beginning": "C3",
-            "dwd-l11-close_to_merger": "C4",
-            "dwd-l12-beginning": "C5",
-            "dwd-l12-close_to_merger": "C6",
+    def style_map(name):
+        color_dict = {
+            # "dwd-l10-beginning": "C1",
+            "dwd-l10": "C0",
+            # "dwd-l11-beginning": "C3",
+            "dwd-l11": "C1",
+            # "dwd-l12-beginning": "C5",
+            "dwd-l12": "C2",
         }
-        return dict[name]
+        line_dict = {
+            "lci": "solid",
+            "mpi": "dashed"
+        }
+        return {"color": color_dict[name[:-4]], "linestyle": line_dict[name[-3:]]}
 
     df1_tmp = df[df.apply(lambda row:
-                          row["nnodes"] >= 2,
+                          row["nnodes"] >= 2 and
+                          "beginning" not in row["scenario"],
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nnodes", "Total(s)", "tag", "MPI parcelport v.s. LCI parcelport",
-         dirname=dirname, filename="mpi_vs_lci_time", base="lci", with_error=False, color_map=color_map)
+         x_label="Node Number", y_label="Time to Solution (s)",
+         dirname=dirname, filename="mpi_vs_lci_time", base="lci", with_error=False, style_map=style_map)
     df1_tmp = df[df.apply(lambda row:
-                          row["nnodes"] >= 2,
+                          row["nnodes"] >= 2 and
+                          "beginning" not in row["scenario"],
                           axis=1)]
     df1 = df1_tmp.copy()
     plot(df1, "nnodes", "flops", "tag", "MPI parcelport v.s. LCI parcelport",
-         dirname=dirname, filename="mpi_vs_lci_flops", base="lci", with_error=False, color_map=color_map)
+         x_label="Node Number", y_label="FLOP/s",
+         dirname=dirname, filename="mpi_vs_lci_flops", base="lci", with_error=False, style_map=style_map)
 
 
 if __name__ == "__main__":

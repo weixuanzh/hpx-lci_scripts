@@ -62,4 +62,6 @@ def get_hpx_args(config):
                                      "bg_work_max_count", ["lci"])
     args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.enable_sendmc={}", config,
                                      "enable_sendmc", ["lci"])
+    args = append_pp_config_if_exist(args, "--hpx:ini=hpx.parcel.{}.zero_copy_optimization={}", config,
+                                     "zero_copy_optimization", ["mpi", "lci"])
     return args

@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import time
+from datetime import datetime
 
 # load root path
 current_path = os.environ["CURRENT_PATH"]
@@ -12,6 +13,9 @@ sys.path.append(os.path.join(root_path, "include"))
 import pshell
 from script_common_octotiger import *
 from script_common import *
+
+sys.path.append(current_path)
+from control import update_cmd
 
 # load configuration
 config_str = getenv_or("CONFIGS", get_octotiger_default_config())
@@ -23,9 +27,11 @@ if type(config) is list:
 else:
     configs = [config]
 
-pshell.run("export LCT_LOG_LEVEL=info")
-pshell.run("export FI_LOG_LEVEL=warn")
-pshell.run("export FI_LOG_PROV=cxi")
+# basic logging
+jobid = "Unknown"
+if "SLURM_JOB_ID" in os.environ:
+    jobid = os.environ["SLURM_JOB_ID"]
+print("Job {} Time {} Platform {}".format(jobid, datetime.now(), platformConfig.name))
 
 start_time = time.time()
 for config in configs:
@@ -41,6 +47,7 @@ for config in configs:
     cmd = (get_platform_config("get_srun_args", config) +
            get_platform_config("get_numactl_args", config) +
            get_octotiger_cmd(config))
+    update_cmd(cmd, config)
     pshell.run(cmd)
 end_time = time.time()
 print("Executed {} configs. Total time is {}s.".format(len(configs), end_time - start_time))

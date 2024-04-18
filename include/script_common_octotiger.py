@@ -48,8 +48,7 @@ def get_octotiger_cmd(config):
         "--disable_output=on",
         "--amr_boundary_kernel_type=AMR_OPTIMIZED",
         "--optimize_local_communication=1",
-        "--hpx:ini=hpx.parcel.mpi.zero_copy_optimization=0",
-        "--hpx:ini=hpx.parcel.lci.zero_copy_optimization=0",
+        "--hpx:ini=hpx.parcel.zero_copy_optimization=0",
         "--print_times_per_timestep=1",
         # "--hpx:print-counter=/octotiger*/compute/gpu*kokkos*",
         # "--hpx:print-counter=/arithmetics/add@/octotiger*/compute/gpu/hydro_kokkos",
@@ -73,7 +72,16 @@ def get_octotiger_cmd(config):
         args.append("--correct_am_hydro=0")
 
     ngpus_to_use = get_config(config, "ngpus", platformConfig.gpus_per_node)
-    if ngpus_to_use == 0:
+    if platformConfig.name == "ookami":
+        args += [
+            "--monopole_host_kernel_type=KOKKOS",
+            "--multipole_host_kernel_type=KOKKOS",
+            "--hydro_host_kernel_type=KOKKOS",
+            "--monopole_device_kernel_type=OFF",
+            "--multipole_device_kernel_type=OFF",
+            "--hydro_device_kernel_type=OFF"
+        ]
+    elif ngpus_to_use == 0:
         args += [
             "--monopole_host_kernel_type=LEGACY",
             "--multipole_host_kernel_type=LEGACY",

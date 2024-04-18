@@ -31,6 +31,7 @@ from platforms.platform_config_perlmutter import PerlmutterConfig
 from platforms.platform_config_polaris import PolarisConfig
 from platforms.platform_config_delta import DeltaConfig
 from platforms.platform_config_frontera import FronteraConfig
+from platforms.platform_config_ookami import OokamiConfig
 
 platformConfig = PlatformConfigBase()
 
@@ -50,6 +51,8 @@ elif "HOSTNAME" in os.environ and "delta" in os.environ["HOSTNAME"] or \
     platformConfig = DeltaConfig()
 elif "TACC_SYSTEM" in os.environ and os.environ["TACC_SYSTEM"] == "frontera":
     platformConfig = FronteraConfig()
+elif "GIS_PLATFORM" in os.environ and os.environ["GIS_PLATFORM"] == "ookami":
+    platformConfig = OokamiConfig()
 # else:
 #     print("Unknown platform!")
 #     exit(1)

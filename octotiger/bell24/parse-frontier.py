@@ -8,19 +8,15 @@ import ast
 import pandas as pd
 import os,sys
 
-name = "20240410-perlmutter-final"
-input_path = "run/{}/slurm_output.*".format(name)
+name = "20240413-frontier"
+input_path = "run/{}/Octo-Tiger*".format(name)
 output_path = "data/"
 filename_pattern = {
-    "format": "\S+slurm_output\.(\S+)\.n(\d+)-t\d+-(\S+)\.j\S+",
-    "label": ["tag", "nnodes", "name"],
+    "format": "\S+Octo-Tiger-\d+-0*(\d+)n-(\S+)-ctm-(\S+)\.out",
+    "label": ["nnodes", "scenario", "parcelport"],
 }
 
 line_patterns = [
-{
-    "format": "Config: (.+)",
-    "label": ["config"],
-},
 {
     "format": "(?:.+  |)Total: (\S+)",
     "label": ["Total(s)"]
@@ -96,6 +92,9 @@ if __name__ == "__main__":
 
     # df = df[all_labels]
     # df = df.sort_values(by=all_labels)
+    def rename_scenario(row):
+        return "dwd-" + row["scenario"][-3:] + "-close_to_merger"
+    df["scenario"] = df.apply(rename_scenario, axis=1)
 
     if df.shape[0] == 0:
         print("Error! Get 0 entries!")
