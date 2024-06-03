@@ -206,7 +206,7 @@ def submit_jobs(configs, matrix_outside=None, matrix_inside=None, update_outside
     for configs_outside in flat_configs:
         common_config = intersect_dicts(configs_outside)
         if current_spack_env != common_config["spack_env"]:
-            spack_env_activate(os.path.join(root_path, "spack_env", platformConfig.name, common_config["spack_env"]))
+            spack_env_activate(common_config["spack_env"])
             current_spack_env = common_config["spack_env"]
         # print(config)
         time_lb = get_platform_config("job_time_lb", common_config, 0)
